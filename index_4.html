@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MotDor — Comptage des points</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600;700&display=swap');
+
+  :root {
+    --bx: #6B1A2B;
+    --bx2: #8B2A3F;
+    --bx-pale: #F5EAE8;
+    --cr: #F7F0E2;
+    --cr-dark: #E8DFC8;
+    --cr-darker: #D4C8A8;
+    --or: #C49A2A;
+    --or-light: #E0B84A;
+    --or-pale: #FDF4DC;
+    --sg: #5A7A5A;
+    --sg-pale: #EBF2EB;
+    --tx: #2A1810;
+    --tx-mid: #6A4030;
+    --tx-light: #A08060;
+    --wh: #FFFFFF;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 2px 12px rgba(42,24,16,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--cr);
+    color: var(--tx);
+    min-height: 100vh;
+    font-size: 18px;
+    line-height: 1.5;
+  }
+
+  /* ═══════════════════════════════════
+     LAYOUT GÉNÉRAL
+  ═══════════════════════════════════ */
+  .screen { display: none; min-height: 100vh; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  .app-header {
+    background: var(--bx);
+    padding: 16px 20px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .app-header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--or-light);
+    flex: 1;
+  }
+  .app-header-sub {
+    font-size: 13px;
+    color: rgba(247,240,226,0.65);
+  }
+  .btn-back {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: var(--or-light);
+    font-size: 22px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .content { flex: 1; padding: 20px; overflow-y: auto; }
+  .content-center { display: flex; flex-direction: column; align-items: center; }
+
+  /* ═══════════════════════════════════
+     BOUTONS
+  ═══════════════════════════════════ */
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 16px 20px;
+    border-radius: var(--radius);
+    border: none;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.1s, opacity 0.1s;
+    margin-top: 10px;
+    -webkit-appearance: none;
+  }
+  .btn:active { transform: scale(0.98); opacity: 0.9; }
+  .btn-primary { background: var(--bx); color: var(--or-light); }
+  .btn-secondary { background: var(--or); color: var(--tx); }
+  .btn-ghost { background: transparent; color: var(--bx); border: 2px solid var(--bx); }
+  .btn-danger { background: #8B1A1A; color: #FFD0D0; }
+  .btn-sm { padding: 11px 16px; font-size: 15px; }
+
+  /* ═══════════════════════════════════
+     CHAMPS
+  ═══════════════════════════════════ */
+  .field-group { margin-bottom: 16px; }
+  .field-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tx-mid);
+    margin-bottom: 6px;
+  }
+  .field-input {
+    width: 100%;
+    padding: 14px 16px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--tx);
+    background: var(--wh);
+    border: 2px solid var(--cr-dark);
+    border-radius: var(--radius-sm);
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .field-input:focus { border-color: var(--or); }
+  .field-input.large { font-size: 22px; text-align: center; }
+
+  /* ═══════════════════════════════════
+     CARTES
+  ═══════════════════════════════════ */
+  .card {
+    background: var(--wh);
+    border-radius: var(--radius);
+    border: 1.5px solid var(--cr-dark);
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+  }
+  .card-gold {
+    background: var(--or-pale);
+    border-color: var(--or);
+  }
+  .card-sage {
+    background: var(--sg-pale);
+    border-color: var(--sg);
+  }
+
+  /* ═══════════════════════════════════
+     BADGE MANCHE
+  ═══════════════════════════════════ */
+  .badge-manche {
+    display: inline-block;
+    background: var(--bx);
+    color: var(--or-light);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+
+  /* ═══════════════════════════════════
+     TUILES DE LETTRES
+  ═══════════════════════════════════ */
+  .tirage-zone {
+    min-height: 56px;
+    background: var(--wh);
+    border: 2.5px solid var(--or);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .tile {
+    width: 42px;
+    height: 42px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.1s;
+    user-select: none;
+  }
+  .tile:active { transform: scale(0.92); }
+  .tile-new { background: var(--or); color: var(--tx); box-shadow: 0 3px 0 #8B6A10; }
+  .tile-reused { background: var(--sg); color: var(--wh); box-shadow: 0 3px 0 #3A5A3A; }
+  .tile-pts {
+    position: absolute;
+    bottom: 2px;
+    right: 3px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 8px;
+    font-weight: 700;
+  }
+  .tile-placeholder {
+    font-size: 14px;
+    color: var(--tx-light);
+    font-style: italic;
+    font-family: 'Source Sans 3', sans-serif;
+  }
+  .tile-legend {
+    display: flex;
+    gap: 14px;
+    font-size: 13px;
+    color: var(--tx-mid);
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .tile-legend span { display: flex; align-items: center; gap: 5px; }
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* ═══════════════════════════════════
+     CHAMP LETTRE (input natif)
+  ═══════════════════════════════════ */
+  .input-lettre-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .input-lettre {
+    width: 60px;
+    height: 60px;
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--bx);
+    text-align: center;
+    text-transform: uppercase;
+    background: var(--wh);
+    border: 2.5px solid var(--bx);
+    border-radius: var(--radius-sm);
+    outline: none;
+    flex-shrink: 0;
+    padding: 0;
+    -webkit-appearance: none;
+    caret-color: var(--or);
+  }
+  .input-lettre:focus { border-color: var(--or); box-shadow: 0 0 0 3px rgba(196,154,42,0.2); }
+  .input-lettre-desc { font-size: 14px; color: var(--tx-mid); line-height: 1.4; flex: 1; }
+
+  /* ═══════════════════════════════════
+     CLASSEMENT
+  ═══════════════════════════════════ */
+  .score-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    background: var(--wh);
+    border: 1.5px solid var(--cr-dark);
+  }
+  .score-row.top {
+    background: var(--or-pale);
+    border-color: var(--or);
+  }
+  .score-rank {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--bx);
+    width: 24px;
+    flex-shrink: 0;
+  }
+  .score-name { font-size: 18px; font-weight: 600; flex: 1; color: var(--tx); }
+  .score-manche { font-size: 13px; color: var(--tx-light); flex-shrink: 0; }
+  .score-total { font-size: 20px; font-weight: 700; color: var(--bx); flex-shrink: 0; }
+  .score-star { color: var(--or); font-size: 18px; flex-shrink: 0; }
+
+  /* ═══════════════════════════════════
+     LISTE JOUEURS
+  ═══════════════════════════════════ */
+  .player-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--wh);
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--cr-dark);
+    margin-bottom: 8px;
+  }
+  .player-num {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--or);
+    width: 22px;
+    flex-shrink: 0;
+  }
+  .player-name-text { font-size: 18px; color: var(--tx); flex: 1; font-weight: 600; }
+  .player-del {
+    background: none;
+    border: none;
+    color: var(--cr-darker);
+    font-size: 22px;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .player-del:hover { color: #8B1A1A; }
+
+  .add-player-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px;
+    border: 2px dashed var(--or);
+    border-radius: var(--radius-sm);
+    color: var(--or);
+    font-size: 17px;
+    font-weight: 700;
+    background: none;
+    cursor: pointer;
+    width: 100%;
+    font-family: 'Source Sans 3', sans-serif;
+    margin-top: 4px;
+  }
+
+  /* ═══════════════════════════════════
+     AVATAR JOUEUR
+  ═══════════════════════════════════ */
+  .joueur-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--bx);
+    color: var(--or-light);
+    font-family: 'Playfair Display', serif;
+    font-size: 30px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+    border: 3px solid var(--or);
+  }
+  .joueur-progress {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .progress-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--cr-dark);
+  }
+  .progress-dot.done { background: var(--sg); }
+  .progress-dot.current { background: var(--or); }
+
+  /* ═══════════════════════════════════
+     HISTORIQUE
+  ═══════════════════════════════════ */
+  .hist-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--wh);
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--cr-dark);
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
+  .hist-row.encours {
+    background: var(--sg-pale);
+    border-color: var(--sg);
+  }
+  .hist-info { flex: 1; }
+  .hist-date { font-size: 13px; color: var(--tx-light); }
+  .hist-winner { font-size: 17px; font-weight: 700; color: var(--bx); }
+  .hist-detail { font-size: 13px; color: var(--tx-mid); }
+  .hist-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    flex-shrink: 0;
+  }
+  .hist-badge.encours { background: var(--sg-pale); color: var(--sg); border: 1px solid var(--sg); }
+  .hist-badge.done { background: var(--or-pale); color: var(--bx); border: 1px solid var(--or); }
+
+  /* ═══════════════════════════════════
+     ACCUEIL HERO
+  ═══════════════════════════════════ */
+  .hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 30px 20px 20px;
+  }
+  .hero-logo-wrap {
+    margin-bottom: 16px;
+  }
+  .hero-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--bx);
+    line-height: 1;
+  }
+  .hero-logo span { color: var(--or); }
+  .hero-tagline {
+    font-size: 16px;
+    color: var(--tx-mid);
+    margin-top: 4px;
+  }
+  .hero-tiles {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* ═══════════════════════════════════
+     RÉCAP FINAL
+  ═══════════════════════════════════ */
+  .recap-best {
+    background: var(--or-pale);
+    border: 2px solid var(--or);
+    border-radius: var(--radius);
+    padding: 16px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .recap-best-label { font-size: 13px; color: var(--tx-light); margin-bottom: 4px; }
+  .recap-best-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: var(--bx);
+    font-weight: 700;
+  }
+  .recap-best-detail { font-size: 15px; color: var(--tx-mid); margin-top: 4px; }
+
+  /* ═══════════════════════════════════
+     CORRECTION
+  ═══════════════════════════════════ */
+  .corr-manches {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .corr-manche-btn {
+    padding: 8px 18px;
+    border-radius: 20px;
+    border: 2px solid var(--cr-dark);
+    background: var(--wh);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--tx-mid);
+    cursor: pointer;
+    font-family: 'Source Sans 3', sans-serif;
+  }
+  .corr-manche-btn.active {
+    background: var(--bx);
+    color: var(--or-light);
+    border-color: var(--bx);
+  }
+
+  /* ═══════════════════════════════════
+     NOTIFICATIONS
+  ═══════════════════════════════════ */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--tx);
+    color: var(--cr);
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-size: 15px;
+    font-weight: 600;
+    z-index: 9999;
+    transition: transform 0.3s ease;
+    white-space: nowrap;
+    max-width: 90vw;
+    text-align: center;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ═══════════════════════════════════
+     BOUTON FLOTTANT "TERMINER"
+  ═══════════════════════════════════ */
+  .fab-terminer {
+    position: fixed;
+    bottom: 24px;
+    right: 20px;
+    background: var(--bx);
+    color: var(--or-light);
+    border: none;
+    border-radius: 30px;
+    padding: 14px 20px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(107,26,43,0.4);
+    z-index: 200;
+    display: none;
+  }
+  .fab-terminer.visible { display: block; }
+
+  /* ═══════════════════════════════════
+     SECTION TITRE
+  ═══════════════════════════════════ */
+  .section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--tx-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+    margin-top: 4px;
+  }
+
+  /* ═══════════════════════════════════
+     SÉPARATEUR
+  ═══════════════════════════════════ */
+  .sep {
+    border: none;
+    border-top: 1px solid var(--cr-dark);
+    margin: 16px 0;
+  }
+
+  /* ═══════════════════════════════════
+     SCORE GRAND (saisie)
+  ═══════════════════════════════════ */
+  .input-score-big {
+    font-family: 'Playfair Display', serif;
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--bx);
+    text-align: center;
+    width: 100%;
+    padding: 14px;
+    border: 3px solid var(--or);
+    border-radius: var(--radius);
+    background: var(--wh);
+    outline: none;
+    -webkit-appearance: none;
+    margin-bottom: 6px;
+  }
+  .input-score-big:focus { border-color: var(--bx); box-shadow: 0 0 0 4px rgba(196,154,42,0.2); }
+
+  /* ═══════════════════════════════════
+     NOTE INFO
+  ═══════════════════════════════════ */
+  .note-info {
+    background: var(--or-pale);
+    border-left: 4px solid var(--or);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: var(--tx-mid);
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .note-info strong { color: var(--bx); }
+
+  /* ═══════════════════════════════════
+     MODAL CONFIRMATION
+  ═══════════════════════════════════ */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(42,24,16,0.6);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-box {
+    background: var(--cr);
+    border-radius: var(--radius);
+    padding: 24px;
+    max-width: 360px;
+    width: 100%;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--bx);
+    margin-bottom: 10px;
+  }
+  .modal-text { font-size: 16px; color: var(--tx-mid); margin-bottom: 20px; line-height: 1.5; }
+
+  /* ═══════════════════════════════════
+     SPECTATEUR
+  ═══════════════════════════════════ */
+  .spectateur-banner {
+    background: var(--sg-pale);
+    border: 2px solid var(--sg);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .spectateur-label { font-size: 15px; font-weight: 700; color: var(--sg); }
+  .spectateur-sub { font-size: 13px; color: var(--tx-mid); }
+
+  /* ═══════════════════════════════════
+     RESPONSIVE PC
+  ═══════════════════════════════════ */
+  @media (min-width: 600px) {
+    .content { max-width: 500px; margin: 0 auto; width: 100%; }
+    .app-header { justify-content: center; }
+    .app-header-title { max-width: 500px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════
+     ÉCRAN 0 — ACCUEIL
+═══════════════════════════════════ -->
+<div id="screen-accueil" class="screen active">
+  <div class="hero">
+    <div class="hero-logo-wrap">
+      <div class="hero-tiles" id="hero-tiles"></div>
+      <div class="hero-logo">Mot<span>Dor</span></div>
+      <div class="hero-tagline">Comptage des points</div>
+    </div>
+    <div style="width:100%;max-width:400px;">
+      <div class="field-group">
+        <label class="field-label" for="input-mdj">Votre nom (maître du jeu)</label>
+        <input class="field-input large" id="input-mdj" type="text" placeholder="Ex : Jean-Marc" autocomplete="off" autocorrect="off" spellcheck="false">
+      </div>
+      <button class="btn btn-primary" onclick="demarrerNouvellePartie()">Nouvelle partie</button>
+      <button class="btn btn-secondary" id="btn-reprendre" onclick="reprendrePartie()" style="display:none">Reprendre la partie en cours</button>
+      <hr class="sep">
+      <button class="btn btn-ghost" onclick="showHistorique()">Voir l'historique des parties</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     ÉCRAN 1 — PARTICIPANTS
+═══════════════════════════════════ -->
+<div id="screen-joueurs" class="screen">
+  <div class="app-header">
+    <button class="btn-back" onclick="showScreen('screen-accueil')">←</button>
+    <div>
+      <div class="app-header-title">MotDor</div>
+      <div class="app-header-sub">Nouvelle partie — Joueurs</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="section-title" id="joueurs-count">0 joueurs</div>
+    <div id="liste-joueurs"></div>
+    <button class="add-player-btn" onclick="ajouterJoueur()">+ Ajouter un joueur</button>
+    <div style="font-size:13px;color:var(--tx-light);text-align:center;margin:8px 0 16px;">De 2 à 100 joueurs</div>
+    <button class="btn btn-primary" onclick="demarrerPartie()">Démarrer la partie →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     ÉCRAN 2 — SAISIE MANCHE
+═══════════════════════════════════ -->
+<div id="screen-manche" class="screen">
+  <div class="app-header">
+    <div>
+      <div class="app-header-title">MotDor</div>
+      <div class="app-header-sub" id="header-manche-sub">Manche 1 — Tirage</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="badge-manche" id="badge-manche">Manche 1</div>
+
+    <div id="note-reutilisees" class="note-info" style="display:none">
+      <strong>Lettres pré-remplies</strong> — les lettres non utilisées dans le mot de la manche précédente ont été ajoutées automatiquement.
+    </div>
+
+    <div class="section-title">Tirage en cours</div>
+    <div class="tirage-zone" id="tirage-zone">
+      <span class="tile-placeholder">Les lettres ajoutées apparaîtront ici</span>
+    </div>
+    <div class="tile-legend">
+      <span><span class="legend-dot" style="background:var(--sg)"></span>Réutilisées</span>
+      <span><span class="legend-dot" style="background:var(--or)"></span>Nouvelles</span>
+    </div>
+
+    <div class="input-lettre-wrap">
+      <input
+        class="input-lettre"
+        id="input-lettre"
+        type="text"
+        maxlength="1"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="characters"
+        spellcheck="false"
+        placeholder="A"
+        oninput="ajouterLettre(this)"
+      >
+      <div class="input-lettre-desc">Tapez une lettre — elle s'ajoute au tirage. Même lettre possible plusieurs fois.</div>
+    </div>
+
+    <hr class="sep">
+
+    <div class="field-group">
+      <label class="field-label" for="input-pts-max">Points maximum du tirage</label>
+      <input class="field-input" id="input-pts-max" type="number" inputmode="numeric" placeholder="Ex : 28" min="0">
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="input-mot">Mot qui rapporte le plus</label>
+      <input class="field-input" id="input-mot" type="text" placeholder="Ex : POURRIS" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" style="text-transform:uppercase">
+    </div>
+
+    <button class="btn btn-primary" onclick="validerManche()">Saisir les scores →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     ÉCRAN 3 — SCORE PAR JOUEUR
+═══════════════════════════════════ -->
+<div id="screen-score" class="screen">
+  <div class="app-header">
+    <div>
+      <div class="app-header-title">MotDor</div>
+      <div class="app-header-sub" id="header-score-sub">Score — Manche 1</div>
+    </div>
+  </div>
+  <div class="content content-center">
+    <div class="joueur-progress" id="score-progress"></div>
+    <div class="joueur-avatar" id="score-avatar">?</div>
+    <div style="font-size:24px;font-weight:700;color:var(--tx);margin-bottom:4px;text-align:center;" id="score-nom"></div>
+    <div style="font-size:15px;color:var(--tx-light);margin-bottom:20px;text-align:center;" id="score-precedent"></div>
+    <input
+      class="input-score-big"
+      id="input-score"
+      type="number"
+      inputmode="numeric"
+      placeholder="0"
+      min="0"
+      onkeydown="if(event.key==='Enter'){event.preventDefault();validerScore();}"
+    >
+    <div style="font-size:14px;color:var(--tx-light);text-align:center;margin-bottom:20px;">Entrez le score et validez</div>
+    <button class="btn btn-primary" onclick="validerScore()">Joueur suivant →</button>
+    <hr class="sep" style="width:100%">
+    <button class="btn btn-ghost btn-sm" onclick="showCorrection()">Corriger un score passé</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     ÉCRAN 4 — CLASSEMENT
+═══════════════════════════════════ -->
+<div id="screen-classement" class="screen">
+  <div class="app-header">
+    <div>
+      <div class="app-header-title">MotDor</div>
+      <div class="app-header-sub" id="header-classement-sub">Classement</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="badge-manche" id="badge-classement">Après manche 1</div>
+    <div id="liste-classement"></div>
+    <hr class="sep">
+    <button class="btn btn-primary" onclick="mancheSuivante()">Manche suivante →</button>
+    <button class="btn btn-ghost btn-sm" onclick="showCorrection()">Corriger un score</button>
+  </div>
+  <button class="fab-terminer visible" onclick="confirmerTerminer()">Terminer la partie</button>
+</div>
+
+<!-- ═══════════════════════════════════
+     ÉCRAN 5 — CORRECTION
+═══════════════════════════════════ -->
+<div id="screen-correction" class="screen">
+  <div class="app-header">
+    <button class="btn-back" id="btn-back-correction" onclick="retourDepuisCorrection()">←</button>
+    <div>
+      <div class="app-header-title">Correction</div>
+      <div class="app-header-sub">Modifier un score passé</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="section-title">Sélectionner la manche</div>
+    <div class="corr-manches" id="corr-manches"></div>
+    <div class="section-title" id="corr-joueurs-title">Joueurs</div>
+    <div id="corr-joueurs"></div>
+    <div id="corr-form" style="display:none">
+      <hr class="sep">
+      <div class="field-group">
+        <label class="field-label" id="corr-label">Nouveau score</label>
+        <input class="field-input large" id="corr-input" type="number" inputmode="numeric" min="0">
+      </div>
+      <button class="btn btn-primary" onclick="validerCorrection()">Valider la correction</button>
+      <button class="btn btn-ghost btn-sm" onclick="annulerCorrection()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     ÉCRAN 6 — RÉCAPITULATIF FINAL
+═══════════════════════════════════ -->
+<div id="screen-recap" class="screen">
+  <div class="app-header" style="justify-content:center;text-align:center;">
+    <div>
+      <div class="app-header-title">Fin de partie !</div>
+      <div class="app-header-sub" id="recap-date"></div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="recap-best" id="recap-best"></div>
+    <div class="section-title">Classement final</div>
+    <div id="recap-classement"></div>
+    <hr class="sep">
+    <button class="btn btn-primary" onclick="nouvellePartieDepuisRecap()">Nouvelle partie</button>
+    <button class="btn btn-ghost btn-sm" onclick="showScreen('screen-accueil')">Retour à l'accueil</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     ÉCRAN 7 — HISTORIQUE
+═══════════════════════════════════ -->
+<div id="screen-historique" class="screen">
+  <div class="app-header">
+    <button class="btn-back" onclick="showScreen('screen-accueil')">←</button>
+    <div>
+      <div class="app-header-title">Historique</div>
+      <div class="app-header-sub">30 derniers jours</div>
+    </div>
+  </div>
+  <div class="content">
+    <div id="liste-historique"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     ÉCRAN 8 — SPECTATEUR
+═══════════════════════════════════ -->
+<div id="screen-spectateur" class="screen">
+  <div class="app-header">
+    <div>
+      <div class="app-header-title">MotDor</div>
+      <div class="app-header-sub" id="spec-sub">Vue spectateur</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="spectateur-banner">
+      <div class="spectateur-label">👁 Mode spectateur — lecture seule</div>
+      <div class="spectateur-sub">Mise à jour automatique toutes les 5 secondes</div>
+    </div>
+    <div class="badge-manche" id="spec-badge">Manche 1</div>
+    <div class="section-title">Tirage en cours</div>
+    <div class="tirage-zone" id="spec-tirage"></div>
+    <div style="font-size:15px;color:var(--tx-mid);margin-bottom:16px;" id="spec-mot"></div>
+    <div class="section-title">Classement</div>
+    <div id="spec-classement"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     MODAL CONFIRMATION
+═══════════════════════════════════ -->
+<div class="modal-overlay" id="modal-terminer">
+  <div class="modal-box">
+    <div class="modal-title">Terminer la partie ?</div>
+    <div class="modal-text">Le récapitulatif final sera affiché. Cette action ne peut pas être annulée.</div>
+    <button class="btn btn-danger" onclick="terminerPartie()">Oui, terminer la partie</button>
+    <button class="btn btn-ghost btn-sm" onclick="fermerModal()">Annuler</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  ÉTAT DE L'APPLICATION
+// ═══════════════════════════════════════════════════
+let etat = {
+  maitre: '',
+  joueurs: [],         // [{nom, scores:[{manche, points}]}]
+  manches: [],         // [{numero, tirage:[{lettre, reutilisee}], ptsMax, mot}]
+  mancheActuelle: 0,   // index
+  joueurActuel: 0,     // index
+  enCours: false,
+  ecranRetour: 'screen-classement', // pour correction
+};
+
+let correctionManche = null;
+let correctionJoueur = null;
+let specInterval = null;
+
+const STORAGE_KEY = 'motdor_partie';
+const HISTORY_KEY = 'motdor_historique';
+
+// ═══════════════════════════════════════════════════
+//  PERSISTENCE
+// ═══════════════════════════════════════════════════
+function sauvegarder() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(etat)); } catch(e) {}
+}
+
+function charger() {
+  try {
+    const d = localStorage.getItem(STORAGE_KEY);
+    if (d) { etat = JSON.parse(d); return true; }
+  } catch(e) {}
+  return false;
+}
+
+function sauvegarderHistorique() {
+  try {
+    let hist = getHistorique();
+    const id = etat.id || Date.now().toString();
+    etat.id = id;
+    // Supprimer l'ancienne entrée si elle existe
+    hist = hist.filter(h => h.id !== id);
+    hist.unshift({
+      id,
+      date: etat.dateDebut || new Date().toISOString(),
+      maitre: etat.maitre,
+      joueurs: etat.joueurs.map(j => j.nom),
+      manches: etat.manches.length,
+      termine: !etat.enCours,
+      vainqueur: getVainqueur()?.nom || '',
+      snapshot: JSON.parse(JSON.stringify(etat))
+    });
+    // Garder 30 jours
+    const limite = Date.now() - 30 * 24 * 3600 * 1000;
+    const filtres = hist.filter(h => new Date(h.date).getTime() > limite);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(filtres));
+  } catch(e) {}
+}
+
+function getHistorique() {
+  try {
+    return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+  } catch(e) { return []; }
+}
+
+function getVainqueur() {
+  if (!etat.joueurs.length) return null;
+  return [...etat.joueurs].sort((a, b) => totalScore(b) - totalScore(a))[0];
+}
+
+// ═══════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+  if (specInterval) { clearInterval(specInterval); specInterval = null; }
+}
+
+// ═══════════════════════════════════════════════════
+//  ACCUEIL
+// ═══════════════════════════════════════════════════
+function initAccueil() {
+  // Tuiles déco
+  const lettres = ['M','O','T','D','O','R'];
+  const container = document.getElementById('hero-tiles');
+  container.innerHTML = lettres.map((l, i) =>
+    `<div class="tile ${i < 3 ? 'tile-new' : 'tile-reused'}">${l}</div>`
+  ).join('');
+
+  // Vérifier partie en cours
+  if (charger() && etat.enCours) {
+    document.getElementById('btn-reprendre').style.display = 'block';
+  }
+
+  // Vérifier mode spectateur (URL ?spec=ID)
+  const params = new URLSearchParams(location.search);
+  if (params.get('spec')) {
+    chargerSpectateur(params.get('spec'));
+    return;
+  }
+}
+
+function demarrerNouvellePartie() {
+  const nom = document.getElementById('input-mdj').value.trim();
+  if (!nom) { showToast('Veuillez entrer votre nom'); return; }
+  etat = {
+    maitre: nom,
+    joueurs: [],
+    manches: [],
+    mancheActuelle: 0,
+    joueurActuel: 0,
+    enCours: false,
+    id: Date.now().toString(),
+    dateDebut: new Date().toISOString(),
+  };
+  sauvegarder();
+  renderJoueurs();
+  showScreen('screen-joueurs');
+}
+
+function reprendrePartie() {
+  if (!charger()) return;
+  // Reprendre là où on était
+  if (etat.mancheActuelle >= etat.manches.length) {
+    // On était sur le classement
+    renderClassement();
+    showScreen('screen-classement');
+  } else {
+    renderManche();
+    showScreen('screen-manche');
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  JOUEURS
+// ═══════════════════════════════════════════════════
+function renderJoueurs() {
+  const liste = document.getElementById('liste-joueurs');
+  const count = document.getElementById('joueurs-count');
+  count.textContent = `${etat.joueurs.length} joueur${etat.joueurs.length > 1 ? 's' : ''}`;
+  liste.innerHTML = etat.joueurs.map((j, i) => `
+    <div class="player-row">
+      <span class="player-num">${i + 1}</span>
+      <input
+        class="field-input player-name-text"
+        style="border:none;background:transparent;padding:0;font-size:18px;font-weight:600;"
+        value="${escHtml(j.nom)}"
+        placeholder="Nom du joueur"
+        onchange="etat.joueurs[${i}].nom=this.value;sauvegarder();"
+        autocomplete="off" autocorrect="off" spellcheck="false"
+      >
+      <button class="player-del" onclick="supprimerJoueur(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function ajouterJoueur() {
+  if (etat.joueurs.length >= 100) { showToast('Maximum 100 joueurs'); return; }
+  etat.joueurs.push({ nom: '', scores: [] });
+  sauvegarder();
+  renderJoueurs();
+  // Focus sur le dernier champ
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('#liste-joueurs input');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }, 100);
+}
+
+function supprimerJoueur(i) {
+  etat.joueurs.splice(i, 1);
+  sauvegarder();
+  renderJoueurs();
+}
+
+function demarrerPartie() {
+  // Nettoyer les noms vides
+  etat.joueurs = etat.joueurs.filter(j => j.nom.trim() !== '');
+  if (etat.joueurs.length < 2) { showToast('Minimum 2 joueurs'); return; }
+  etat.joueurs.forEach(j => { j.nom = j.nom.trim(); j.scores = []; });
+  etat.manches = [];
+  etat.mancheActuelle = 0;
+  etat.enCours = true;
+  sauvegarder();
+  renderManche();
+  showScreen('screen-manche');
+}
+
+// ═══════════════════════════════════════════════════
+//  MANCHE
+// ═══════════════════════════════════════════════════
+function renderManche() {
+  const num = etat.mancheActuelle + 1;
+  document.getElementById('badge-manche').textContent = `Manche ${num}`;
+  document.getElementById('header-manche-sub').textContent = `Manche ${num} — Tirage`;
+
+  // Pré-remplir les lettres réutilisées
+  let tirageCourant = [];
+  if (etat.mancheActuelle > 0) {
+    const manchePrec = etat.manches[etat.mancheActuelle - 1];
+    const motPrec = manchePrec.mot.toUpperCase();
+    const tiragePrecLetters = manchePrec.tirage.map(t => t.lettre);
+    // Lettres du tirage précédent non utilisées dans le mot
+    const lettresUtilisees = motPrec.split('');
+    let restant = [...tiragePrecLetters];
+    for (const l of lettresUtilisees) {
+      const idx = restant.indexOf(l);
+      if (idx !== -1) restant.splice(idx, 1);
+    }
+    tirageCourant = restant.map(l => ({ lettre: l, reutilisee: true }));
+    document.getElementById('note-reutilisees').style.display = 'block';
+  } else {
+    document.getElementById('note-reutilisees').style.display = 'none';
+  }
+
+  // Stocker tirage temporaire
+  etat._tirageCourant = tirageCourant;
+  document.getElementById('input-pts-max').value = '';
+  document.getElementById('input-mot').value = '';
+  document.getElementById('input-lettre').value = '';
+  renderTirageCourant();
+}
+
+function renderTirageCourant() {
+  const zone = document.getElementById('tirage-zone');
+  const tirage = etat._tirageCourant || [];
+  if (tirage.length === 0) {
+    zone.innerHTML = '<span class="tile-placeholder">Les lettres ajoutées apparaîtront ici</span>';
+    return;
+  }
+  zone.innerHTML = tirage.map((t, i) => `
+    <div class="tile ${t.reutilisee ? 'tile-reused' : 'tile-new'}" onclick="retirerLettre(${i})" title="Appuyez pour retirer">
+      ${escHtml(t.lettre)}
+    </div>
+  `).join('');
+}
+
+function ajouterLettre(input) {
+  let val = input.value.replace(/[^a-zA-ZÀ-ÿ]/g, '').toUpperCase();
+  if (!val) { input.value = ''; return; }
+  val = val.charAt(0);
+  etat._tirageCourant = etat._tirageCourant || [];
+  etat._tirageCourant.push({ lettre: val, reutilisee: false });
+  input.value = '';
+  renderTirageCourant();
+}
+
+function retirerLettre(i) {
+  etat._tirageCourant.splice(i, 1);
+  renderTirageCourant();
+}
+
+function validerManche() {
+  const tirage = etat._tirageCourant || [];
+  if (tirage.length === 0) { showToast('Ajoutez au moins une lettre au tirage'); return; }
+  const ptsMax = parseInt(document.getElementById('input-pts-max').value);
+  if (!ptsMax || ptsMax < 0) { showToast('Entrez le nombre de points maximum'); return; }
+  const mot = document.getElementById('input-mot').value.trim().toUpperCase();
+  if (!mot) { showToast('Entrez le mot qui rapporte le plus'); return; }
+
+  // Créer la manche
+  const manche = {
+    numero: etat.mancheActuelle + 1,
+    tirage: tirage,
+    ptsMax,
+    mot,
+    scores: {}
+  };
+  etat.manches.push(manche);
+  etat.joueurActuel = 0;
+  sauvegarder();
+  renderScoreJoueur();
+  showScreen('screen-score');
+}
+
+// ═══════════════════════════════════════════════════
+//  SCORES
+// ═══════════════════════════════════════════════════
+function renderScoreJoueur() {
+  const joueur = etat.joueurs[etat.joueurActuel];
+  const numManche = etat.manches.length;
+  const nbJoueurs = etat.joueurs.length;
+
+  document.getElementById('header-score-sub').textContent = `Score — Manche ${numManche}`;
+  document.getElementById('score-avatar').textContent = joueur.nom.charAt(0).toUpperCase();
+  document.getElementById('score-nom').textContent = joueur.nom;
+
+  const total = totalScore(joueur);
+  document.getElementById('score-precedent').textContent =
+    total > 0 ? `Score actuel : ${total} pts` : 'Premier score';
+
+  document.getElementById('input-score').value = '';
+
+  // Progress
+  const progress = document.getElementById('score-progress');
+  progress.innerHTML = etat.joueurs.map((_, i) => {
+    let cls = 'progress-dot';
+    if (i < etat.joueurActuel) cls += ' done';
+    else if (i === etat.joueurActuel) cls += ' current';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+
+  setTimeout(() => document.getElementById('input-score').focus(), 300);
+}
+
+function validerScore() {
+  const val = document.getElementById('input-score').value;
+  const score = parseInt(val);
+  if (val === '' || isNaN(score) || score < 0) { showToast('Entrez un score valide'); return; }
+
+  const manche = etat.manches[etat.manches.length - 1];
+  const joueur = etat.joueurs[etat.joueurActuel];
+  manche.scores[joueur.nom] = score;
+  joueur.scores.push({ manche: manche.numero, points: score });
+
+  etat.joueurActuel++;
+  sauvegarder();
+
+  if (etat.joueurActuel >= etat.joueurs.length) {
+    // Tous les joueurs ont scoré
+    etat.mancheActuelle = etat.manches.length;
+    sauvegarderHistorique();
+    renderClassement();
+    showScreen('screen-classement');
+  } else {
+    renderScoreJoueur();
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  CLASSEMENT
+// ═══════════════════════════════════════════════════
+function totalScore(joueur) {
+  return joueur.scores.reduce((s, sc) => s + sc.points, 0);
+}
+
+function renderClassement() {
+  const numManche = etat.manches.length;
+  document.getElementById('badge-classement').textContent = `Après manche ${numManche}`;
+  document.getElementById('header-classement-sub').textContent = `Classement — après manche ${numManche}`;
+
+  const sorted = [...etat.joueurs]
+    .map(j => ({ ...j, total: totalScore(j), dernierScore: j.scores.slice(-1)[0]?.points || 0 }))
+    .sort((a, b) => b.total - a.total);
+
+  document.getElementById('liste-classement').innerHTML = sorted.map((j, i) => `
+    <div class="score-row ${i === 0 ? 'top' : ''}">
+      <span class="score-rank">${i + 1}</span>
+      <span class="score-name">${escHtml(j.nom)}</span>
+      <span class="score-manche">+${j.dernierScore}</span>
+      <span class="score-total">${j.total}</span>
+      ${i === 0 ? '<span class="score-star">★</span>' : ''}
+    </div>
+  `).join('');
+}
+
+function mancheSuivante() {
+  etat.joueurActuel = 0;
+  sauvegarder();
+  renderManche();
+  showScreen('screen-manche');
+}
+
+// ═══════════════════════════════════════════════════
+//  CORRECTION
+// ═══════════════════════════════════════════════════
+function showCorrection() {
+  etat.ecranRetour = document.querySelector('.screen.active')?.id || 'screen-classement';
+  correctionManche = null;
+  correctionJoueur = null;
+
+  // Boutons manches
+  const manches = document.getElementById('corr-manches');
+  manches.innerHTML = etat.manches.map((m, i) => `
+    <button class="corr-manche-btn" onclick="selectCorrManche(${i})" id="corr-m-${i}">M${m.numero}</button>
+  `).join('');
+
+  document.getElementById('corr-joueurs').innerHTML = '';
+  document.getElementById('corr-form').style.display = 'none';
+  showScreen('screen-correction');
+}
+
+function retourDepuisCorrection() {
+  showScreen(etat.ecranRetour || 'screen-classement');
+  if (etat.ecranRetour === 'screen-classement') renderClassement();
+}
+
+function selectCorrManche(i) {
+  correctionManche = i;
+  document.querySelectorAll('.corr-manche-btn').forEach((b, idx) => {
+    b.classList.toggle('active', idx === i);
+  });
+
+  const manche = etat.manches[i];
+  document.getElementById('corr-joueurs-title').textContent = `Joueurs — Manche ${manche.numero}`;
+  document.getElementById('corr-form').style.display = 'none';
+
+  document.getElementById('corr-joueurs').innerHTML = etat.joueurs.map((j, ji) => {
+    const score = manche.scores[j.nom] ?? '—';
+    return `
+      <div class="score-row" onclick="selectCorrJoueur(${ji})" id="corr-j-${ji}" style="cursor:pointer;">
+        <span class="score-name">${escHtml(j.nom)}</span>
+        <span class="score-total">${score}</span>
+        <span style="font-size:14px;color:var(--or);font-weight:700;">Modifier</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function selectCorrJoueur(ji) {
+  correctionJoueur = ji;
+  document.querySelectorAll('[id^="corr-j-"]').forEach((r, idx) => {
+    r.style.borderColor = idx === ji ? 'var(--or)' : 'var(--cr-dark)';
+    r.style.background = idx === ji ? 'var(--or-pale)' : '';
+  });
+
+  const joueur = etat.joueurs[ji];
+  const manche = etat.manches[correctionManche];
+  const scoreActuel = manche.scores[joueur.nom] ?? 0;
+
+  document.getElementById('corr-label').textContent = `Nouveau score pour ${joueur.nom} (Manche ${manche.numero})`;
+  document.getElementById('corr-input').value = scoreActuel;
+  document.getElementById('corr-form').style.display = 'block';
+  setTimeout(() => document.getElementById('corr-input').focus(), 100);
+}
+
+function validerCorrection() {
+  if (correctionManche === null || correctionJoueur === null) return;
+  const val = parseInt(document.getElementById('corr-input').value);
+  if (isNaN(val) || val < 0) { showToast('Score invalide'); return; }
+
+  const joueur = etat.joueurs[correctionJoueur];
+  const manche = etat.manches[correctionManche];
+  const ancienScore = manche.scores[joueur.nom] ?? 0;
+
+  // Mettre à jour le score dans la manche
+  manche.scores[joueur.nom] = val;
+
+  // Mettre à jour dans joueur.scores
+  const scoreEntry = joueur.scores.find(s => s.manche === manche.numero);
+  if (scoreEntry) scoreEntry.points = val;
+  else joueur.scores.push({ manche: manche.numero, points: val });
+
+  sauvegarder();
+  sauvegarderHistorique();
+  showToast(`Score corrigé : ${joueur.nom} M${manche.numero} → ${val} pts`);
+
+  // Retour
+  document.getElementById('corr-form').style.display = 'none';
+  renderClassement();
+  retourDepuisCorrection();
+}
+
+function annulerCorrection() {
+  document.getElementById('corr-form').style.display = 'none';
+  correctionJoueur = null;
+}
+
+// ═══════════════════════════════════════════════════
+//  FIN DE PARTIE
+// ═══════════════════════════════════════════════════
+function confirmerTerminer() {
+  document.getElementById('modal-terminer').classList.add('active');
+}
+
+function fermerModal() {
+  document.getElementById('modal-terminer').classList.remove('active');
+}
+
+function terminerPartie() {
+  fermerModal();
+  etat.enCours = false;
+  etat.dateFin = new Date().toISOString();
+  sauvegarder();
+  sauvegarderHistorique();
+  // Supprimer partie en cours du storage
+  localStorage.removeItem(STORAGE_KEY);
+  renderRecap();
+  showScreen('screen-recap');
+}
+
+function renderRecap() {
+  const sorted = [...etat.joueurs]
+    .map(j => ({ ...j, total: totalScore(j) }))
+    .sort((a, b) => b.total - a.total);
+
+  // Meilleure manche toutes manches confondues
+  let bestScore = -1, bestJoueur = '', bestManche = 0;
+  etat.manches.forEach(m => {
+    etat.joueurs.forEach(j => {
+      const s = m.scores[j.nom] ?? 0;
+      if (s > bestScore) {
+        bestScore = s;
+        bestJoueur = j.nom;
+        bestManche = m.numero;
+      }
+    });
+  });
+
+  const date = new Date(etat.dateFin || Date.now());
+  document.getElementById('recap-date').textContent =
+    date.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) +
+    ' — ' + date.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+
+  document.getElementById('recap-best').innerHTML = `
+    <div class="recap-best-label">⭐ Meilleure manche de la partie</div>
+    <div class="recap-best-name">${escHtml(bestJoueur)}</div>
+    <div class="recap-best-detail">${bestScore} pts — Manche ${bestManche}</div>
+  `;
+
+  document.getElementById('recap-classement').innerHTML = sorted.map((j, i) => `
+    <div class="score-row ${i === 0 ? 'top' : ''}">
+      <span class="score-rank">${i + 1}</span>
+      <span class="score-name">${escHtml(j.nom)}</span>
+      <span class="score-total">${j.total} pts</span>
+      ${i === 0 ? '<span class="score-star">★</span>' : ''}
+    </div>
+  `).join('');
+}
+
+function nouvellePartieDepuisRecap() {
+  showScreen('screen-accueil');
+}
+
+// ═══════════════════════════════════════════════════
+//  HISTORIQUE
+// ═══════════════════════════════════════════════════
+function showHistorique() {
+  const hist = getHistorique();
+  const liste = document.getElementById('liste-historique');
+
+  if (hist.length === 0) {
+    liste.innerHTML = `<div style="text-align:center;color:var(--tx-light);padding:40px 20px;font-size:16px;">Aucune partie enregistrée pour le moment.</div>`;
+    showScreen('screen-historique');
+    return;
+  }
+
+  liste.innerHTML = hist.map((h, i) => {
+    const date = new Date(h.date);
+    const dateStr = date.toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric' }) +
+      ' — ' + date.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+    const encours = !h.termine;
+    return `
+      <div class="hist-row ${encours ? 'encours' : ''}" onclick="ouvrirHistorique(${i})">
+        <div class="hist-info">
+          <div class="hist-date">${dateStr}</div>
+          <div class="hist-winner">${encours ? h.maitre : escHtml(h.vainqueur)}</div>
+          <div class="hist-detail">${h.maitre} · ${h.joueurs.length} joueurs · ${h.manches} manche${h.manches > 1 ? 's' : ''}</div>
+        </div>
+        <div class="hist-badge ${encours ? 'encours' : 'done'}">${encours ? 'EN COURS' : 'Terminée'}</div>
+      </div>
+    `;
+  }).join('');
+
+  showScreen('screen-historique');
+}
+
+function ouvrirHistorique(i) {
+  const hist = getHistorique();
+  const h = hist[i];
+  if (!h) return;
+
+  if (!h.termine && h.snapshot) {
+    // Reprendre la partie
+    etat = JSON.parse(JSON.stringify(h.snapshot));
+    sauvegarder();
+    if (etat.mancheActuelle >= etat.manches.length) {
+      renderClassement();
+      showScreen('screen-classement');
+    } else {
+      renderManche();
+      showScreen('screen-manche');
+    }
+  } else if (h.snapshot) {
+    // Afficher le récap
+    etat = JSON.parse(JSON.stringify(h.snapshot));
+    etat.dateFin = h.date;
+    renderRecap();
+    showScreen('screen-recap');
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  SPECTATEUR
+// ═══════════════════════════════════════════════════
+function chargerSpectateur(id) {
+  // Mode spectateur : lire depuis l'historique par ID
+  showScreen('screen-spectateur');
+  rafraichirSpectateur(id);
+  specInterval = setInterval(() => rafraichirSpectateur(id), 5000);
+}
+
+function rafraichirSpectateur(id) {
+  const hist = getHistorique();
+  const h = hist.find(h => h.id === id);
+  if (!h || !h.snapshot) {
+    document.getElementById('spec-sub').textContent = 'Partie introuvable';
+    return;
+  }
+
+  const snap = h.snapshot;
+  const numManche = snap.manches.length;
+  const manche = snap.manches[numManche - 1];
+
+  document.getElementById('spec-sub').textContent = `Vue spectateur — Manche ${numManche}`;
+  document.getElementById('spec-badge').textContent = `Manche ${numManche}`;
+
+  if (manche) {
+    const tirage = document.getElementById('spec-tirage');
+    tirage.innerHTML = manche.tirage.map(t =>
+      `<div class="tile ${t.reutilisee ? 'tile-reused' : 'tile-new'}">${escHtml(t.lettre)}</div>`
+    ).join('');
+    document.getElementById('spec-mot').textContent =
+      `Meilleur mot : ${manche.mot} — ${manche.ptsMax} pts max`;
+  }
+
+  const sorted = [...snap.joueurs]
+    .map(j => ({ ...j, total: j.scores.reduce((s,sc) => s+sc.points, 0) }))
+    .sort((a, b) => b.total - a.total);
+
+  document.getElementById('spec-classement').innerHTML = sorted.map((j, i) => `
+    <div class="score-row ${i === 0 ? 'top' : ''}">
+      <span class="score-rank">${i + 1}</span>
+      <span class="score-name">${escHtml(j.nom)}</span>
+      <span class="score-total">${j.total}</span>
+      ${i === 0 ? '<span class="score-star">★</span>' : ''}
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════
+//  UTILITAIRES
+// ═══════════════════════════════════════════════════
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', initAccueil);
+</script>
+</body>
+</html>
