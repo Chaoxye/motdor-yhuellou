@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -10,652 +11,817 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="MotDor">
 <meta name="theme-color" content="#6B1A2B">
+<meta name="color-scheme" content="light only">
 <style>
+  :root { color-scheme: light only; }
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600;700&display=swap');
 
-  :root {
-    --bx: #6B1A2B;
-    --bx2: #8B2A3F;
-    --bx-pale: #F5EAE8;
-    --cr: #F7F0E2;
-    --cr-dark: #E8DFC8;
-    --cr-darker: #D4C8A8;
-    --or: #C49A2A;
-    --or-light: #E0B84A;
-    --or-pale: #FDF4DC;
-    --sg: #5A7A5A;
-    --sg-pale: #EBF2EB;
-    --tx: #2A1810;
-    --tx-mid: #6A4030;
-    --tx-light: #A08060;
-    --wh: #FFFFFF;
-    --radius: 12px;
-    --radius-sm: 8px;
-    --shadow: 0 2px 12px rgba(42,24,16,0.10);
-  }
+:root {
+–bx: #6B1A2B;
+–bx2: #8B2A3F;
+–bx-pale: #F5EAE8;
+–cr: #F7F0E2;
+–cr-dark: #E8DFC8;
+–cr-darker: #D4C8A8;
+–or: #C49A2A;
+–or-light: #E0B84A;
+–or-pale: #FDF4DC;
+–sg: #5A7A5A;
+–sg-pale: #EBF2EB;
+–tx: #2A1810;
+–tx-mid: #6A4030;
+–tx-light: #A08060;
+–wh: #FFFFFF;
+–radius: 12px;
+–radius-sm: 8px;
+–shadow: 0 2px 12px rgba(42,24,16,0.10);
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+- { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-  body {
-    font-family: 'Source Sans 3', sans-serif;
-    background: var(--cr);
-    color: var(--tx);
-    min-height: 100vh;
-    font-size: 18px;
-    line-height: 1.5;
-  }
+body {
+font-family: ‘Source Sans 3’, sans-serif;
+background: var(–cr);
+color: var(–tx);
+min-height: 100vh;
+font-size: 18px;
+line-height: 1.5;
+}
 
-  /* ═══════════════════════════════════
-     LAYOUT GÉNÉRAL
-  ═══════════════════════════════════ */
-  .screen { display: none; min-height: 100vh; flex-direction: column; }
-  .screen.active { display: flex; }
+/* ═══════════════════════════════════
+LAYOUT GÉNÉRAL
+═══════════════════════════════════ */
+.screen { display: none; min-height: 100vh; flex-direction: column; }
+.screen.active { display: flex; }
 
-  .app-header {
-    background: var(--bx);
-    padding: 16px 20px 14px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  }
-  .app-header-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 22px;
-    color: var(--or-light);
-    flex: 1;
-  }
-  .app-header-sub {
-    font-size: 13px;
-    color: rgba(247,240,226,0.65);
-  }
-  .btn-back {
-    background: rgba(255,255,255,0.15);
-    border: none;
-    color: var(--or-light);
-    font-size: 22px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
+.app-header {
+background: var(–bx);
+padding: 16px 20px 14px;
+display: flex;
+align-items: center;
+gap: 12px;
+position: sticky;
+top: 0;
+z-index: 100;
+box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.app-header-title {
+font-family: ‘Playfair Display’, serif;
+font-size: 22px;
+color: var(–or-light);
+flex: 1;
+}
+.app-header-sub {
+font-size: 13px;
+color: rgba(247,240,226,0.65);
+}
+.btn-back {
+background: rgba(255,255,255,0.15);
+border: none;
+color: var(–or-light);
+font-size: 22px;
+width: 40px;
+height: 40px;
+border-radius: 50%;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+flex-shrink: 0;
+}
 
-  .content { flex: 1; padding: 20px; overflow-y: auto; }
-  .content-center { display: flex; flex-direction: column; align-items: center; }
+.content { flex: 1; padding: 20px; overflow-y: auto; }
+.content-center { display: flex; flex-direction: column; align-items: center; }
 
-  /* ═══════════════════════════════════
-     BOUTONS
-  ═══════════════════════════════════ */
-  .btn {
-    display: block;
-    width: 100%;
-    padding: 16px 20px;
-    border-radius: var(--radius);
-    border: none;
-    font-family: 'Source Sans 3', sans-serif;
-    font-size: 17px;
-    font-weight: 700;
-    cursor: pointer;
-    text-align: center;
-    transition: transform 0.1s, opacity 0.1s;
-    margin-top: 10px;
-    -webkit-appearance: none;
-  }
-  .btn:active { transform: scale(0.98); opacity: 0.9; }
-  .btn-primary { background: var(--bx); color: var(--or-light); }
-  .btn-secondary { background: var(--or); color: var(--tx); }
-  .btn-ghost { background: transparent; color: var(--bx); border: 2px solid var(--bx); }
-  .btn-danger { background: #8B1A1A; color: #FFD0D0; }
-  .btn-sm { padding: 11px 16px; font-size: 15px; }
+/* ═══════════════════════════════════
+BOUTONS
+═══════════════════════════════════ */
+.btn {
+display: block;
+width: 100%;
+padding: 16px 20px;
+border-radius: var(–radius);
+border: none;
+font-family: ‘Source Sans 3’, sans-serif;
+font-size: 17px;
+font-weight: 700;
+cursor: pointer;
+text-align: center;
+transition: transform 0.1s, opacity 0.1s;
+margin-top: 10px;
+-webkit-appearance: none;
+}
+.btn:active { transform: scale(0.98); opacity: 0.9; }
+.btn-primary { background: var(–bx); color: var(–or-light); }
+.btn-secondary { background: var(–or); color: var(–tx); }
+.btn-ghost { background: transparent; color: var(–bx); border: 2px solid var(–bx); }
+.btn-danger { background: #8B1A1A; color: #FFD0D0; }
+.btn-sm { padding: 11px 16px; font-size: 15px; }
 
-  /* ═══════════════════════════════════
-     CHAMPS
-  ═══════════════════════════════════ */
-  .field-group { margin-bottom: 16px; }
-  .field-label {
-    display: block;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--tx-mid);
-    margin-bottom: 6px;
-  }
-  .field-input {
-    width: 100%;
-    padding: 14px 16px;
-    font-family: 'Source Sans 3', sans-serif;
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--tx);
-    background: var(--wh);
-    border: 2px solid var(--cr-dark);
-    border-radius: var(--radius-sm);
-    outline: none;
-    transition: border-color 0.2s;
-    -webkit-appearance: none;
-  }
-  .field-input:focus { border-color: var(--or); }
-  .field-input.large { font-size: 22px; text-align: center; }
+/* ═══════════════════════════════════
+CHAMPS
+═══════════════════════════════════ */
+.field-group { margin-bottom: 16px; }
+.field-label {
+display: block;
+font-size: 14px;
+font-weight: 600;
+color: var(–tx-mid);
+margin-bottom: 6px;
+}
+.field-input {
+width: 100%;
+padding: 14px 16px;
+font-family: ‘Source Sans 3’, sans-serif;
+font-size: 18px;
+font-weight: 600;
+color: var(–tx);
+background: var(–wh);
+border: 2px solid var(–cr-dark);
+border-radius: var(–radius-sm);
+outline: none;
+transition: border-color 0.2s;
+-webkit-appearance: none;
+}
+.field-input:focus { border-color: var(–or); }
+.field-input.large { font-size: 22px; text-align: center; }
 
-  /* ═══════════════════════════════════
-     CARTES
-  ═══════════════════════════════════ */
-  .card {
-    background: var(--wh);
-    border-radius: var(--radius);
-    border: 1.5px solid var(--cr-dark);
-    padding: 16px;
-    margin-bottom: 12px;
-    box-shadow: var(--shadow);
-  }
-  .card-gold {
-    background: var(--or-pale);
-    border-color: var(--or);
-  }
-  .card-sage {
-    background: var(--sg-pale);
-    border-color: var(--sg);
-  }
+/* ═══════════════════════════════════
+CARTES
+═══════════════════════════════════ */
+.card {
+background: var(–wh);
+border-radius: var(–radius);
+border: 1.5px solid var(–cr-dark);
+padding: 16px;
+margin-bottom: 12px;
+box-shadow: var(–shadow);
+}
+.card-gold {
+background: var(–or-pale);
+border-color: var(–or);
+}
+.card-sage {
+background: var(–sg-pale);
+border-color: var(–sg);
+}
 
-  /* ═══════════════════════════════════
-     BADGE MANCHE
-  ═══════════════════════════════════ */
-  .badge-manche {
-    display: inline-block;
-    background: var(--bx);
-    color: var(--or-light);
-    font-size: 13px;
-    font-weight: 700;
-    padding: 4px 14px;
-    border-radius: 20px;
-    margin-bottom: 14px;
-  }
+/* ═══════════════════════════════════
+BADGE MANCHE
+═══════════════════════════════════ */
+.badge-manche {
+display: inline-block;
+background: var(–bx);
+color: var(–or-light);
+font-size: 13px;
+font-weight: 700;
+padding: 4px 14px;
+border-radius: 20px;
+margin-bottom: 14px;
+}
 
-  /* ═══════════════════════════════════
-     TUILES DE LETTRES
-  ═══════════════════════════════════ */
-  .tirage-zone {
-    min-height: 56px;
-    background: var(--wh);
-    border: 2.5px solid var(--or);
-    border-radius: var(--radius-sm);
-    padding: 10px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-  .tile {
-    width: 42px;
-    height: 42px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Playfair Display', serif;
-    font-size: 20px;
-    font-weight: 700;
-    position: relative;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: transform 0.1s;
-    user-select: none;
-  }
-  .tile:active { transform: scale(0.92); }
-  .tile-new { background: var(--or); color: var(--tx); box-shadow: 0 3px 0 #8B6A10; }
-  .tile-reused { background: var(--sg); color: var(--wh); box-shadow: 0 3px 0 #3A5A3A; }
-  .tile-pts {
-    position: absolute;
-    bottom: 2px;
-    right: 3px;
-    font-family: 'Source Sans 3', sans-serif;
-    font-size: 8px;
-    font-weight: 700;
-  }
-  .tile-placeholder {
-    font-size: 14px;
-    color: var(--tx-light);
-    font-style: italic;
-    font-family: 'Source Sans 3', sans-serif;
-  }
-  .tile-legend {
-    display: flex;
-    gap: 14px;
-    font-size: 13px;
-    color: var(--tx-mid);
-    margin-bottom: 14px;
-    flex-wrap: wrap;
-  }
-  .tile-legend span { display: flex; align-items: center; gap: 5px; }
-  .legend-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 3px;
-    flex-shrink: 0;
-  }
+/* ═══════════════════════════════════
+TUILES DE LETTRES
+═══════════════════════════════════ */
+.tirage-zone {
+min-height: 56px;
+background: var(–wh);
+border: 2.5px solid var(–or);
+border-radius: var(–radius-sm);
+padding: 10px;
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+align-items: center;
+margin-bottom: 8px;
+}
+.tile {
+width: 42px;
+height: 42px;
+border-radius: 6px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-family: ‘Playfair Display’, serif;
+font-size: 20px;
+font-weight: 700;
+position: relative;
+cursor: pointer;
+flex-shrink: 0;
+transition: transform 0.1s;
+user-select: none;
+}
+.tile:active { transform: scale(0.92); }
+.tile-new { background: var(–or); color: var(–tx); box-shadow: 0 3px 0 #8B6A10; }
+.tile-reused { background: var(–sg); color: var(–wh); box-shadow: 0 3px 0 #3A5A3A; }
+.tile-pts {
+position: absolute;
+bottom: 2px;
+right: 3px;
+font-family: ‘Source Sans 3’, sans-serif;
+font-size: 8px;
+font-weight: 700;
+}
+.tile-placeholder {
+font-size: 14px;
+color: var(–tx-light);
+font-style: italic;
+font-family: ‘Source Sans 3’, sans-serif;
+}
+.tile-legend {
+display: flex;
+gap: 14px;
+font-size: 13px;
+color: var(–tx-mid);
+margin-bottom: 14px;
+flex-wrap: wrap;
+}
+.tile-legend span { display: flex; align-items: center; gap: 5px; }
+.legend-dot {
+width: 12px;
+height: 12px;
+border-radius: 3px;
+flex-shrink: 0;
+}
 
-  /* ═══════════════════════════════════
-     CHAMP LETTRE (input natif)
-  ═══════════════════════════════════ */
-  .input-lettre-wrap {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 8px;
-  }
-  .input-lettre {
-    width: 60px;
-    height: 60px;
-    font-family: 'Playfair Display', serif;
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--bx);
-    text-align: center;
-    text-transform: uppercase;
-    background: var(--wh);
-    border: 2.5px solid var(--bx);
-    border-radius: var(--radius-sm);
-    outline: none;
-    flex-shrink: 0;
-    padding: 0;
-    -webkit-appearance: none;
-    caret-color: var(--or);
-  }
-  .input-lettre:focus { border-color: var(--or); box-shadow: 0 0 0 3px rgba(196,154,42,0.2); }
-  .input-lettre-desc { font-size: 14px; color: var(--tx-mid); line-height: 1.4; flex: 1; }
+/* ═══════════════════════════════════
+CHAMP LETTRE (input natif)
+═══════════════════════════════════ */
+.input-lettre-wrap {
+display: flex;
+align-items: center;
+gap: 12px;
+margin-bottom: 8px;
+}
+.input-lettre {
+width: 60px;
+height: 60px;
+font-family: ‘Playfair Display’, serif;
+font-size: 28px;
+font-weight: 700;
+color: var(–bx);
+text-align: center;
+text-transform: uppercase;
+background: var(–wh);
+border: 2.5px solid var(–bx);
+border-radius: var(–radius-sm);
+outline: none;
+flex-shrink: 0;
+padding: 0;
+-webkit-appearance: none;
+caret-color: var(–or);
+}
+.input-lettre:focus { border-color: var(–or); box-shadow: 0 0 0 3px rgba(196,154,42,0.2); }
+.input-lettre-desc { font-size: 14px; color: var(–tx-mid); line-height: 1.4; flex: 1; }
 
-  /* ═══════════════════════════════════
-     CLASSEMENT
-  ═══════════════════════════════════ */
-  .score-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 16px;
-    border-radius: var(--radius-sm);
-    margin-bottom: 8px;
-    background: var(--wh);
-    border: 1.5px solid var(--cr-dark);
-  }
-  .score-row.top {
-    background: var(--or-pale);
-    border-color: var(--or);
-  }
-  .score-rank {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--bx);
-    width: 24px;
-    flex-shrink: 0;
-  }
-  .score-name { font-size: 18px; font-weight: 600; flex: 1; color: var(--tx); }
-  .score-manche { font-size: 13px; color: var(--tx-light); flex-shrink: 0; }
-  .score-total { font-size: 20px; font-weight: 700; color: var(--bx); flex-shrink: 0; }
-  .score-star { color: var(--or); font-size: 18px; flex-shrink: 0; }
+/* ═══════════════════════════════════
+CLASSEMENT
+═══════════════════════════════════ */
+.score-row {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 14px 16px;
+border-radius: var(–radius-sm);
+margin-bottom: 8px;
+background: var(–wh);
+border: 1.5px solid var(–cr-dark);
+}
+.score-row.top {
+background: var(–or-pale);
+border-color: var(–or);
+}
+.score-rank {
+font-size: 15px;
+font-weight: 700;
+color: var(–bx);
+width: 24px;
+flex-shrink: 0;
+}
+.score-name { font-size: 18px; font-weight: 600; flex: 1; color: var(–tx); }
+.score-manche { font-size: 13px; color: var(–tx-light); flex-shrink: 0; }
+.score-total { font-size: 20px; font-weight: 700; color: var(–bx); flex-shrink: 0; }
+.score-star { color: var(–or); font-size: 18px; flex-shrink: 0; }
 
-  /* ═══════════════════════════════════
-     LISTE JOUEURS
-  ═══════════════════════════════════ */
-  .player-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 14px;
-    background: var(--wh);
-    border-radius: var(--radius-sm);
-    border: 1.5px solid var(--cr-dark);
-    margin-bottom: 8px;
-  }
-  .player-num {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--or);
-    width: 22px;
-    flex-shrink: 0;
-  }
-  .player-name-text { font-size: 18px; color: var(--tx); flex: 1; font-weight: 600; }
-  .player-del {
-    background: none;
-    border: none;
-    color: var(--cr-darker);
-    font-size: 22px;
-    cursor: pointer;
-    padding: 0 4px;
-    line-height: 1;
-    flex-shrink: 0;
-  }
-  .player-del:hover { color: #8B1A1A; }
+/* ═══════════════════════════════════
+LISTE JOUEURS
+═══════════════════════════════════ */
+.player-row {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 12px 14px;
+background: var(–wh);
+border-radius: var(–radius-sm);
+border: 1.5px solid var(–cr-dark);
+margin-bottom: 8px;
+}
+.player-num {
+font-size: 14px;
+font-weight: 700;
+color: var(–or);
+width: 22px;
+flex-shrink: 0;
+}
+.player-name-text { font-size: 18px; color: var(–tx); flex: 1; font-weight: 600; }
+.player-del {
+background: none;
+border: none;
+color: var(–cr-darker);
+font-size: 22px;
+cursor: pointer;
+padding: 0 4px;
+line-height: 1;
+flex-shrink: 0;
+}
+.player-del:hover { color: #8B1A1A; }
 
-  .add-player-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 14px;
-    border: 2px dashed var(--or);
-    border-radius: var(--radius-sm);
-    color: var(--or);
-    font-size: 17px;
-    font-weight: 700;
-    background: none;
-    cursor: pointer;
-    width: 100%;
-    font-family: 'Source Sans 3', sans-serif;
-    margin-top: 4px;
-  }
+.add-player-btn {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+padding: 14px;
+border: 2px dashed var(–or);
+border-radius: var(–radius-sm);
+color: var(–or);
+font-size: 17px;
+font-weight: 700;
+background: none;
+cursor: pointer;
+width: 100%;
+font-family: ‘Source Sans 3’, sans-serif;
+margin-top: 4px;
+}
 
-  /* ═══════════════════════════════════
-     AVATAR JOUEUR
-  ═══════════════════════════════════ */
-  .joueur-avatar {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    background: var(--bx);
-    color: var(--or-light);
-    font-family: 'Playfair Display', serif;
-    font-size: 30px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 10px;
-    border: 3px solid var(--or);
-  }
-  .joueur-progress {
-    display: flex;
-    gap: 6px;
-    justify-content: center;
-    margin-bottom: 16px;
-  }
-  .progress-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--cr-dark);
-  }
-  .progress-dot.done { background: var(--sg); }
-  .progress-dot.current { background: var(--or); }
+/* ═══════════════════════════════════
+AVATAR JOUEUR
+═══════════════════════════════════ */
+.joueur-avatar {
+width: 72px;
+height: 72px;
+border-radius: 50%;
+background: var(–bx);
+color: var(–or-light);
+font-family: ‘Playfair Display’, serif;
+font-size: 30px;
+font-weight: 700;
+display: flex;
+align-items: center;
+justify-content: center;
+margin: 0 auto 10px;
+border: 3px solid var(–or);
+}
+.joueur-progress {
+display: flex;
+gap: 6px;
+justify-content: center;
+margin-bottom: 16px;
+}
+.progress-dot {
+width: 10px;
+height: 10px;
+border-radius: 50%;
+background: var(–cr-dark);
+}
+.progress-dot.done { background: var(–sg); }
+.progress-dot.current { background: var(–or); }
 
-  /* ═══════════════════════════════════
-     HISTORIQUE
-  ═══════════════════════════════════ */
-  .hist-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 16px;
-    background: var(--wh);
-    border-radius: var(--radius-sm);
-    border: 1.5px solid var(--cr-dark);
-    margin-bottom: 8px;
-    cursor: pointer;
-  }
-  .hist-row.encours {
-    background: var(--sg-pale);
-    border-color: var(--sg);
-  }
-  .hist-info { flex: 1; }
-  .hist-date { font-size: 13px; color: var(--tx-light); }
-  .hist-winner { font-size: 17px; font-weight: 700; color: var(--bx); }
-  .hist-detail { font-size: 13px; color: var(--tx-mid); }
-  .hist-badge {
-    font-size: 11px;
-    font-weight: 700;
-    padding: 3px 10px;
-    border-radius: 20px;
-    flex-shrink: 0;
-  }
-  .hist-badge.encours { background: var(--sg-pale); color: var(--sg); border: 1px solid var(--sg); }
-  .hist-badge.done { background: var(--or-pale); color: var(--bx); border: 1px solid var(--or); }
+/* ═══════════════════════════════════
+HISTORIQUE
+═══════════════════════════════════ */
+.hist-row {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 14px 16px;
+background: var(–wh);
+border-radius: var(–radius-sm);
+border: 1.5px solid var(–cr-dark);
+margin-bottom: 8px;
+cursor: pointer;
+}
+.hist-row.encours {
+background: var(–sg-pale);
+border-color: var(–sg);
+}
+.hist-info { flex: 1; }
+.hist-date { font-size: 13px; color: var(–tx-light); }
+.hist-winner { font-size: 17px; font-weight: 700; color: var(–bx); }
+.hist-detail { font-size: 13px; color: var(–tx-mid); }
+.hist-badge {
+font-size: 11px;
+font-weight: 700;
+padding: 3px 10px;
+border-radius: 20px;
+flex-shrink: 0;
+}
+.hist-badge.encours { background: var(–sg-pale); color: var(–sg); border: 1px solid var(–sg); }
+.hist-badge.done { background: var(–or-pale); color: var(–bx); border: 1px solid var(–or); }
 
-  /* ═══════════════════════════════════
-     ACCUEIL HERO
-  ═══════════════════════════════════ */
-  .hero {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 30px 20px 20px;
-  }
-  .hero-logo-wrap {
-    margin-bottom: 16px;
-  }
-  .hero-logo {
-    font-family: 'Playfair Display', serif;
-    font-size: 48px;
-    font-weight: 900;
-    color: var(--bx);
-    line-height: 1;
-  }
-  .hero-logo span { color: var(--or); }
-  .hero-tagline {
-    font-size: 16px;
-    color: var(--tx-mid);
-    margin-top: 4px;
-  }
-  .hero-tiles {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
+/* ═══════════════════════════════════
+ACCUEIL HERO
+═══════════════════════════════════ */
+.hero {
+display: flex;
+flex-direction: column;
+align-items: center;
+text-align: center;
+padding: 30px 20px 20px;
+}
+.hero-logo-wrap {
+margin-bottom: 16px;
+}
+.hero-logo {
+font-family: ‘Playfair Display’, serif;
+font-size: 48px;
+font-weight: 900;
+color: var(–bx);
+line-height: 1;
+}
+.hero-logo span { color: var(–or); }
+.hero-tagline {
+font-size: 16px;
+color: var(–tx-mid);
+margin-top: 4px;
+}
+.hero-tiles {
+display: flex;
+gap: 6px;
+margin-bottom: 20px;
+flex-wrap: wrap;
+justify-content: center;
+}
 
-  /* ═══════════════════════════════════
-     RÉCAP FINAL
-  ═══════════════════════════════════ */
-  .recap-best {
-    background: var(--or-pale);
-    border: 2px solid var(--or);
-    border-radius: var(--radius);
-    padding: 16px;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  .recap-best-label { font-size: 13px; color: var(--tx-light); margin-bottom: 4px; }
-  .recap-best-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 28px;
-    color: var(--bx);
-    font-weight: 700;
-  }
-  .recap-best-detail { font-size: 15px; color: var(--tx-mid); margin-top: 4px; }
+/* ═══════════════════════════════════
+RÉCAP FINAL
+═══════════════════════════════════ */
+.recap-best {
+background: var(–or-pale);
+border: 2px solid var(–or);
+border-radius: var(–radius);
+padding: 16px;
+text-align: center;
+margin-bottom: 20px;
+}
+.recap-best-label { font-size: 13px; color: var(–tx-light); margin-bottom: 4px; }
+.recap-best-name {
+font-family: ‘Playfair Display’, serif;
+font-size: 28px;
+color: var(–bx);
+font-weight: 700;
+}
+.recap-best-detail { font-size: 15px; color: var(–tx-mid); margin-top: 4px; }
 
-  /* ═══════════════════════════════════
-     CORRECTION
-  ═══════════════════════════════════ */
-  .corr-manches {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-bottom: 16px;
-  }
-  .corr-manche-btn {
-    padding: 8px 18px;
-    border-radius: 20px;
-    border: 2px solid var(--cr-dark);
-    background: var(--wh);
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--tx-mid);
-    cursor: pointer;
-    font-family: 'Source Sans 3', sans-serif;
-  }
-  .corr-manche-btn.active {
-    background: var(--bx);
-    color: var(--or-light);
-    border-color: var(--bx);
-  }
+/* ═══════════════════════════════════
+CORRECTION
+═══════════════════════════════════ */
+.corr-manches {
+display: flex;
+gap: 8px;
+flex-wrap: wrap;
+margin-bottom: 16px;
+}
+.corr-manche-btn {
+padding: 8px 18px;
+border-radius: 20px;
+border: 2px solid var(–cr-dark);
+background: var(–wh);
+font-size: 15px;
+font-weight: 700;
+color: var(–tx-mid);
+cursor: pointer;
+font-family: ‘Source Sans 3’, sans-serif;
+}
+.corr-manche-btn.active {
+background: var(–bx);
+color: var(–or-light);
+border-color: var(–bx);
+}
 
-  /* ═══════════════════════════════════
-     NOTIFICATIONS
-  ═══════════════════════════════════ */
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: var(--tx);
-    color: var(--cr);
-    padding: 12px 24px;
-    border-radius: 30px;
-    font-size: 15px;
-    font-weight: 600;
-    z-index: 9999;
-    transition: transform 0.3s ease;
-    white-space: nowrap;
-    max-width: 90vw;
-    text-align: center;
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); }
+/* ═══════════════════════════════════
+NOTIFICATIONS
+═══════════════════════════════════ */
+.toast {
+position: fixed;
+bottom: 24px;
+left: 50%;
+transform: translateX(-50%) translateY(100px);
+background: var(–tx);
+color: var(–cr);
+padding: 12px 24px;
+border-radius: 30px;
+font-size: 15px;
+font-weight: 600;
+z-index: 9999;
+transition: transform 0.3s ease;
+white-space: nowrap;
+max-width: 90vw;
+text-align: center;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
 
-  /* ═══════════════════════════════════
-     BOUTON FLOTTANT "TERMINER"
-  ═══════════════════════════════════ */
-  .fab-terminer {
-    position: fixed;
-    bottom: 24px;
-    right: 20px;
-    background: var(--bx);
-    color: var(--or-light);
-    border: none;
-    border-radius: 30px;
-    padding: 14px 20px;
-    font-family: 'Source Sans 3', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 4px 16px rgba(107,26,43,0.4);
-    z-index: 200;
-    display: none;
-  }
-  .fab-terminer.visible { display: block; }
+/* ═══════════════════════════════════
+BOUTON FLOTTANT “TERMINER”
+═══════════════════════════════════ */
+.fab-terminer {
+position: fixed;
+bottom: 24px;
+right: 20px;
+background: var(–bx);
+color: var(–or-light);
+border: none;
+border-radius: 30px;
+padding: 14px 20px;
+font-family: ‘Source Sans 3’, sans-serif;
+font-size: 15px;
+font-weight: 700;
+cursor: pointer;
+box-shadow: 0 4px 16px rgba(107,26,43,0.4);
+z-index: 200;
+display: none;
+}
+.fab-terminer.visible { display: block; }
 
-  /* ═══════════════════════════════════
-     SECTION TITRE
-  ═══════════════════════════════════ */
-  .section-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--tx-mid);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 10px;
-    margin-top: 4px;
-  }
+/* ═══════════════════════════════════
+SECTION TITRE
+═══════════════════════════════════ */
+.section-title {
+font-size: 14px;
+font-weight: 700;
+color: var(–tx-mid);
+text-transform: uppercase;
+letter-spacing: 0.06em;
+margin-bottom: 10px;
+margin-top: 4px;
+}
 
-  /* ═══════════════════════════════════
-     SÉPARATEUR
-  ═══════════════════════════════════ */
-  .sep {
-    border: none;
-    border-top: 1px solid var(--cr-dark);
-    margin: 16px 0;
-  }
+/* ═══════════════════════════════════
+SÉPARATEUR
+═══════════════════════════════════ */
+.sep {
+border: none;
+border-top: 1px solid var(–cr-dark);
+margin: 16px 0;
+}
 
-  /* ═══════════════════════════════════
-     SCORE GRAND (saisie)
-  ═══════════════════════════════════ */
-  .input-score-big {
-    font-family: 'Playfair Display', serif;
-    font-size: 56px;
-    font-weight: 700;
-    color: var(--bx);
-    text-align: center;
-    width: 100%;
-    padding: 14px;
-    border: 3px solid var(--or);
-    border-radius: var(--radius);
-    background: var(--wh);
-    outline: none;
-    -webkit-appearance: none;
-    margin-bottom: 6px;
-  }
-  .input-score-big:focus { border-color: var(--bx); box-shadow: 0 0 0 4px rgba(196,154,42,0.2); }
+/* ═══════════════════════════════════
+SCORE GRAND (saisie)
+═══════════════════════════════════ */
+.input-score-big {
+font-family: ‘Playfair Display’, serif;
+font-size: 56px;
+font-weight: 700;
+color: var(–bx);
+text-align: center;
+width: 100%;
+padding: 14px;
+border: 3px solid var(–or);
+border-radius: var(–radius);
+background: var(–wh);
+outline: none;
+-webkit-appearance: none;
+margin-bottom: 6px;
+}
+.input-score-big:focus { border-color: var(–bx); box-shadow: 0 0 0 4px rgba(196,154,42,0.2); }
 
-  /* ═══════════════════════════════════
-     NOTE INFO
-  ═══════════════════════════════════ */
-  .note-info {
-    background: var(--or-pale);
-    border-left: 4px solid var(--or);
-    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-    padding: 10px 14px;
-    font-size: 14px;
-    color: var(--tx-mid);
-    margin-bottom: 14px;
-    line-height: 1.5;
-  }
-  .note-info strong { color: var(--bx); }
+/* ═══════════════════════════════════
+NOTE INFO
+═══════════════════════════════════ */
+.note-info {
+background: var(–or-pale);
+border-left: 4px solid var(–or);
+border-radius: 0 var(–radius-sm) var(–radius-sm) 0;
+padding: 10px 14px;
+font-size: 14px;
+color: var(–tx-mid);
+margin-bottom: 14px;
+line-height: 1.5;
+}
+.note-info strong { color: var(–bx); }
 
-  /* ═══════════════════════════════════
-     MODAL CONFIRMATION
-  ═══════════════════════════════════ */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(42,24,16,0.6);
-    z-index: 1000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-  .modal-overlay.active { display: flex; }
-  .modal-box {
-    background: var(--cr);
-    border-radius: var(--radius);
-    padding: 24px;
-    max-width: 360px;
-    width: 100%;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-  }
-  .modal-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 22px;
-    color: var(--bx);
-    margin-bottom: 10px;
-  }
-  .modal-text { font-size: 16px; color: var(--tx-mid); margin-bottom: 20px; line-height: 1.5; }
+/* ═══════════════════════════════════
+MODAL CONFIRMATION
+═══════════════════════════════════ */
+.modal-overlay {
+position: fixed;
+inset: 0;
+background: rgba(42,24,16,0.6);
+z-index: 1000;
+display: none;
+align-items: center;
+justify-content: center;
+padding: 20px;
+}
+.modal-overlay.active { display: flex; }
+.modal-box {
+background: var(–cr);
+border-radius: var(–radius);
+padding: 24px;
+max-width: 360px;
+width: 100%;
+box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+.modal-title {
+font-family: ‘Playfair Display’, serif;
+font-size: 22px;
+color: var(–bx);
+margin-bottom: 10px;
+}
+.modal-text { font-size: 16px; color: var(–tx-mid); margin-bottom: 20px; line-height: 1.5; }
 
-  /* ═══════════════════════════════════
-     SPECTATEUR
-  ═══════════════════════════════════ */
-  .spectateur-banner {
-    background: var(--sg-pale);
-    border: 2px solid var(--sg);
-    border-radius: var(--radius-sm);
-    padding: 10px 14px;
-    text-align: center;
-    margin-bottom: 16px;
-  }
-  .spectateur-label { font-size: 15px; font-weight: 700; color: var(--sg); }
-  .spectateur-sub { font-size: 13px; color: var(--tx-mid); }
+/* ═══════════════════════════════════
+SPECTATEUR
+═══════════════════════════════════ */
+.spectateur-banner {
+background: var(–sg-pale);
+border: 2px solid var(–sg);
+border-radius: var(–radius-sm);
+padding: 10px 14px;
+text-align: center;
+margin-bottom: 16px;
+}
+.spectateur-label { font-size: 15px; font-weight: 700; color: var(–sg); }
+.spectateur-sub { font-size: 13px; color: var(–tx-mid); }
 
-  /* ═══════════════════════════════════
-     RESPONSIVE PC
-  ═══════════════════════════════════ */
-  @media (min-width: 600px) {
-    .content { max-width: 500px; margin: 0 auto; width: 100%; }
-    .app-header { justify-content: center; }
-    .app-header-title { max-width: 500px; }
-  }
+/* ═══════════════════════════════════
+PANNEAU CLASSEMENT (slide-up)
+═══════════════════════════════════ */
+.panel-overlay {
+position: fixed;
+inset: 0;
+background: rgba(42,24,16,0.5);
+z-index: 500;
+display: none;
+align-items: flex-end;
+}
+.panel-overlay.active { display: flex; }
+.panel-box {
+background: var(–cr);
+border-radius: 20px 20px 0 0;
+padding: 20px;
+width: 100%;
+max-height: 75vh;
+overflow-y: auto;
+animation: slideUp 0.25s ease;
+}
+@keyframes slideUp {
+from { transform: translateY(100%); }
+to { transform: translateY(0); }
+}
+.panel-handle {
+width: 40px;
+height: 4px;
+background: var(–cr-darker);
+border-radius: 2px;
+margin: 0 auto 16px;
+}
+
+/* ═══════════════════════════════════
+CHRONOMÈTRE
+═══════════════════════════════════ */
+.chrono-wrap {
+background: var(–bx);
+border-radius: var(–radius);
+padding: 14px 16px;
+margin-bottom: 14px;
+display: flex;
+align-items: center;
+gap: 12px;
+}
+.chrono-display {
+font-family: ‘Playfair Display’, serif;
+font-size: 32px;
+font-weight: 700;
+color: var(–or-light);
+flex: 1;
+letter-spacing: 2px;
+}
+.chrono-display.warning { color: #FF8C8C; }
+.chrono-btn {
+background: rgba(255,255,255,0.15);
+border: none;
+color: var(–or-light);
+font-size: 13px;
+font-weight: 700;
+padding: 8px 14px;
+border-radius: 20px;
+cursor: pointer;
+font-family: ‘Source Sans 3’, sans-serif;
+white-space: nowrap;
+}
+.chrono-btn.start { background: var(–or); color: var(–tx); }
+.chrono-btn.stop { background: rgba(255,255,255,0.25); }
+
+/* Modal réglage chrono */
+.chrono-settings {
+background: var(–cr);
+border-radius: var(–radius);
+padding: 20px;
+max-width: 320px;
+width: 100%;
+box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+.chrono-presets {
+display: flex;
+gap: 8px;
+flex-wrap: wrap;
+margin: 10px 0;
+}
+.preset-btn {
+padding: 8px 16px;
+border-radius: 20px;
+border: 2px solid var(–cr-dark);
+background: var(–wh);
+font-size: 15px;
+font-weight: 700;
+color: var(–tx-mid);
+cursor: pointer;
+font-family: ‘Source Sans 3’, sans-serif;
+}
+.preset-btn.active {
+background: var(–bx);
+color: var(–or-light);
+border-color: var(–bx);
+}
+
+/* ═══════════════════════════════════
+BANNIÈRE MOT + POINTS (saisie score)
+═══════════════════════════════════ */
+.manche-recap-banner {
+background: var(–bx);
+padding: 10px 16px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 10px;
+flex-shrink: 0;
+}
+.manche-recap-mot {
+font-family: ‘Playfair Display’, serif;
+font-size: 20px;
+font-weight: 700;
+color: var(–or-light);
+letter-spacing: 1px;
+}
+.manche-recap-pts {
+font-size: 14px;
+color: rgba(247,240,226,0.75);
+text-align: right;
+flex-shrink: 0;
+}
+.manche-recap-pts strong {
+display: block;
+font-size: 20px;
+color: var(–or-light);
+font-weight: 700;
+}
+
+/* ═══════════════════════════════════
+ZONE TIRAGE CLIQUABLE
+═══════════════════════════════════ */
+.tirage-zone-active {
+cursor: text;
+border-color: var(–bx);
+box-shadow: 0 0 0 3px rgba(196,154,42,0.2);
+}
+.tirage-cursor {
+display: inline-block;
+width: 2px;
+height: 36px;
+background: var(–bx);
+animation: blink 1s step-end infinite;
+vertical-align: middle;
+margin-left: 2px;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* Input caché pour capter le clavier natif */
+.input-hidden {
+position: absolute;
+opacity: 0;
+width: 1px;
+height: 1px;
+pointer-events: none;
+}
+
+/* ═══════════════════════════════════
+RESPONSIVE PC
+═══════════════════════════════════ */
+@media (min-width: 600px) {
+.content { max-width: 500px; margin: 0 auto; width: 100%; }
+.app-header { justify-content: center; }
+.app-header-title { max-width: 500px; }
+}
 </style>
+
 </head>
 <body>
 
 <!-- ═══════════════════════════════════
      ÉCRAN 0 — ACCUEIL
 ═══════════════════════════════════ -->
+
 <div id="screen-accueil" class="screen active">
   <div class="hero">
     <div class="hero-logo-wrap">
@@ -679,6 +845,7 @@
 <!-- ═══════════════════════════════════
      ÉCRAN 1 — PARTICIPANTS
 ═══════════════════════════════════ -->
+
 <div id="screen-joueurs" class="screen">
   <div class="app-header">
     <button class="btn-back" onclick="showScreen('screen-accueil')">←</button>
@@ -699,69 +866,94 @@
 <!-- ═══════════════════════════════════
      ÉCRAN 2 — SAISIE MANCHE
 ═══════════════════════════════════ -->
+
 <div id="screen-manche" class="screen">
   <div class="app-header">
-    <div>
+    <div style="flex:1">
       <div class="app-header-title">MotDor</div>
       <div class="app-header-sub" id="header-manche-sub">Manche 1 — Tirage</div>
     </div>
+    <button class="chrono-btn" onclick="ouvrirPanneauClassement()" style="background:rgba(255,255,255,0.15);color:var(--or-light);">Scores ↑</button>
   </div>
   <div class="content">
     <div class="badge-manche" id="badge-manche">Manche 1</div>
 
-    <div id="note-reutilisees" class="note-info" style="display:none">
-      <strong>Lettres pré-remplies</strong> — les lettres non utilisées dans le mot de la manche précédente ont été ajoutées automatiquement.
-    </div>
+```
+<!-- CHRONOMÈTRE -->
+<div class="chrono-wrap" id="chrono-wrap">
+  <div class="chrono-display" id="chrono-display">03:00</div>
+  <button class="chrono-btn" onclick="ouvrirReglagesChrono()">Régler</button>
+  <button class="chrono-btn start" id="chrono-btn-start" onclick="toggleChrono()">▶ Démarrer</button>
+</div>
 
-    <div class="section-title">Tirage en cours</div>
-    <div class="tirage-zone" id="tirage-zone">
-      <span class="tile-placeholder">Les lettres ajoutées apparaîtront ici</span>
-    </div>
-    <div class="tile-legend">
-      <span><span class="legend-dot" style="background:var(--sg)"></span>Réutilisées</span>
-      <span><span class="legend-dot" style="background:var(--or)"></span>Nouvelles</span>
-    </div>
+<div id="note-reutilisees" class="note-info" style="display:none">
+  <strong>Lettres pré-remplies</strong> — les lettres non utilisées dans le mot de la manche précédente ont été ajoutées automatiquement.
+</div>
 
-    <div class="input-lettre-wrap">
-      <input
-        class="input-lettre"
-        id="input-lettre"
-        type="text"
-        maxlength="1"
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="characters"
-        spellcheck="false"
-        placeholder="A"
-        oninput="ajouterLettre(this)"
-      >
-      <div class="input-lettre-desc">Tapez une lettre — elle s'ajoute au tirage. Même lettre possible plusieurs fois.</div>
-    </div>
+<div class="section-title">Tirage en cours <span style="font-size:12px;color:var(--tx-light);font-weight:400;">(appuyez sur la zone pour saisir)</span></div>
 
-    <hr class="sep">
+<!-- Zone tirage cliquable -->
+<div class="tirage-zone" id="tirage-zone" onclick="activerSaisieTirage()">
+  <span class="tile-placeholder">Appuyez ici pour saisir les lettres</span>
+</div>
+<!-- Input caché qui capte le clavier -->
+<input
+  class="input-hidden"
+  id="input-lettre"
+  type="text"
+  maxlength="2"
+  autocomplete="off"
+  autocorrect="off"
+  autocapitalize="characters"
+  spellcheck="false"
+  oninput="ajouterLettre(this)"
+  onblur="desactiverSaisieTirage()"
+>
 
-    <div class="field-group">
-      <label class="field-label" for="input-pts-max">Points maximum du tirage</label>
-      <input class="field-input" id="input-pts-max" type="number" inputmode="numeric" placeholder="Ex : 28" min="0">
-    </div>
+<div class="tile-legend">
+  <span><span class="legend-dot" style="background:var(--sg)"></span>Réutilisées</span>
+  <span><span class="legend-dot" style="background:var(--or)"></span>Nouvelles</span>
+  <span style="color:var(--tx-light);font-size:12px;">← Retour = supprimer dernière lettre</span>
+</div>
 
-    <div class="field-group">
-      <label class="field-label" for="input-mot">Mot qui rapporte le plus</label>
-      <input class="field-input" id="input-mot" type="text" placeholder="Ex : POURRIS" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" style="text-transform:uppercase">
-    </div>
+<hr class="sep">
 
-    <button class="btn btn-primary" onclick="validerManche()">Saisir les scores →</button>
+<div class="field-group">
+  <label class="field-label" for="input-pts-max">Points maximum du tirage</label>
+  <input class="field-input" id="input-pts-max" type="number" inputmode="numeric" placeholder="Ex : 28" min="0">
+</div>
+
+<div class="field-group">
+  <label class="field-label" for="input-mot">Mot qui rapporte le plus</label>
+  <input class="field-input" id="input-mot" type="text" placeholder="Ex : POURRIS" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" style="text-transform:uppercase">
+</div>
+
+<button class="btn btn-primary" onclick="validerManche()">Saisir les scores →</button>
+```
+
   </div>
 </div>
 
 <!-- ═══════════════════════════════════
      ÉCRAN 3 — SCORE PAR JOUEUR
 ═══════════════════════════════════ -->
+
 <div id="screen-score" class="screen">
   <div class="app-header">
     <div>
       <div class="app-header-title">MotDor</div>
       <div class="app-header-sub" id="header-score-sub">Score — Manche 1</div>
+    </div>
+  </div>
+  <!-- Bannière rappel mot + points max -->
+  <div class="manche-recap-banner" id="manche-recap-banner">
+    <div>
+      <div style="font-size:12px;color:rgba(247,240,226,0.6);margin-bottom:2px;">Meilleur mot</div>
+      <div class="manche-recap-mot" id="recap-mot">—</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:12px;color:rgba(247,240,226,0.6);margin-bottom:2px;">Points max</div>
+      <div class="manche-recap-pts"><strong id="recap-pts-max">—</strong></div>
     </div>
   </div>
   <div class="content content-center">
@@ -788,6 +980,7 @@
 <!-- ═══════════════════════════════════
      ÉCRAN 4 — CLASSEMENT
 ═══════════════════════════════════ -->
+
 <div id="screen-classement" class="screen">
   <div class="app-header">
     <div>
@@ -808,6 +1001,7 @@
 <!-- ═══════════════════════════════════
      ÉCRAN 5 — CORRECTION
 ═══════════════════════════════════ -->
+
 <div id="screen-correction" class="screen">
   <div class="app-header">
     <button class="btn-back" id="btn-back-correction" onclick="retourDepuisCorrection()">←</button>
@@ -836,6 +1030,7 @@
 <!-- ═══════════════════════════════════
      ÉCRAN 6 — RÉCAPITULATIF FINAL
 ═══════════════════════════════════ -->
+
 <div id="screen-recap" class="screen">
   <div class="app-header" style="justify-content:center;text-align:center;">
     <div>
@@ -856,6 +1051,7 @@
 <!-- ═══════════════════════════════════
      ÉCRAN 7 — HISTORIQUE
 ═══════════════════════════════════ -->
+
 <div id="screen-historique" class="screen">
   <div class="app-header">
     <button class="btn-back" onclick="showScreen('screen-accueil')">←</button>
@@ -872,6 +1068,7 @@
 <!-- ═══════════════════════════════════
      ÉCRAN 8 — SPECTATEUR
 ═══════════════════════════════════ -->
+
 <div id="screen-spectateur" class="screen">
   <div class="app-header">
     <div>
@@ -896,6 +1093,7 @@
 <!-- ═══════════════════════════════════
      MODAL CONFIRMATION
 ═══════════════════════════════════ -->
+
 <div class="modal-overlay" id="modal-terminer">
   <div class="modal-box">
     <div class="modal-title">Terminer la partie ?</div>
@@ -906,7 +1104,45 @@
 </div>
 
 <!-- TOAST -->
+
 <div class="toast" id="toast"></div>
+
+<!-- PANNEAU CLASSEMENT (slide-up depuis tirage) -->
+
+<div class="panel-overlay" id="panel-classement" onclick="fermerPanneauClassement(event)">
+  <div class="panel-box">
+    <div class="panel-handle"></div>
+    <div style="font-family:'Playfair Display',serif;font-size:20px;color:var(--bx);margin-bottom:14px;">Classement en cours</div>
+    <div id="panel-classement-content"></div>
+    <button class="btn btn-primary" style="margin-top:12px;" onclick="fermerPanneauClassement()">Fermer</button>
+  </div>
+</div>
+
+<!-- MODAL RÉGLAGE CHRONO -->
+
+<div class="modal-overlay" id="modal-chrono">
+  <div class="chrono-settings">
+    <div class="modal-title">Régler le chronomètre</div>
+    <div class="modal-text">Choisissez la durée par manche</div>
+    <div class="chrono-presets" id="chrono-presets">
+      <button class="preset-btn" onclick="setChronoPreset(1)">1 min</button>
+      <button class="preset-btn" onclick="setChronoPreset(2)">2 min</button>
+      <button class="preset-btn active" onclick="setChronoPreset(3)">3 min</button>
+      <button class="preset-btn" onclick="setChronoPreset(5)">5 min</button>
+      <button class="preset-btn" onclick="setChronoPreset(10)">10 min</button>
+    </div>
+    <div class="field-group" style="margin-top:8px;">
+      <label class="field-label">Ou saisissez une durée en minutes</label>
+      <input class="field-input" id="chrono-custom" type="number" inputmode="numeric" min="1" max="60" placeholder="Ex : 4">
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
+      <input type="checkbox" id="chrono-sonnerie" style="width:20px;height:20px;cursor:pointer;" checked>
+      <label for="chrono-sonnerie" style="font-size:16px;color:var(--tx-mid);cursor:pointer;">Sonnerie de fin activée</label>
+    </div>
+    <button class="btn btn-primary" onclick="validerReglagesChrono()" style="margin-top:16px;">Valider</button>
+    <button class="btn btn-ghost btn-sm" onclick="fermerModal('modal-chrono')" style="margin-top:6px;">Annuler</button>
+  </div>
+</div>
 
 <script>
 // ═══════════════════════════════════════════════════
@@ -1112,7 +1348,6 @@ function renderManche() {
     const manchePrec = etat.manches[etat.mancheActuelle - 1];
     const motPrec = manchePrec.mot.toUpperCase();
     const tiragePrecLetters = manchePrec.tirage.map(t => t.lettre);
-    // Lettres du tirage précédent non utilisées dans le mot
     const lettresUtilisees = motPrec.split('');
     let restant = [...tiragePrecLetters];
     for (const l of lettresUtilisees) {
@@ -1125,41 +1360,61 @@ function renderManche() {
     document.getElementById('note-reutilisees').style.display = 'none';
   }
 
-  // Stocker tirage temporaire
   etat._tirageCourant = tirageCourant;
   document.getElementById('input-pts-max').value = '';
   document.getElementById('input-mot').value = '';
   document.getElementById('input-lettre').value = '';
-  renderTirageCourant();
+  renderTirageCourant(false);
+
+  // Réinitialiser le chrono
+  stopChrono();
+  afficherChrono(chronoReglage);
+  document.getElementById('chrono-btn-start').textContent = '▶ Démarrer';
+  document.getElementById('chrono-btn-start').classList.add('start');
+  document.getElementById('chrono-display').classList.remove('warning');
 }
 
-function renderTirageCourant() {
+function activerSaisieTirage() {
+  const input = document.getElementById('input-lettre');
+  input.focus();
+  document.getElementById('tirage-zone').classList.add('tirage-zone-active');
+  renderTirageCourant(true);
+}
+
+function desactiverSaisieTirage() {
+  document.getElementById('tirage-zone').classList.remove('tirage-zone-active');
+  renderTirageCourant(false);
+}
+
+function renderTirageCourant(actif) {
   const zone = document.getElementById('tirage-zone');
   const tirage = etat._tirageCourant || [];
   if (tirage.length === 0) {
-    zone.innerHTML = '<span class="tile-placeholder">Les lettres ajoutées apparaîtront ici</span>';
+    zone.innerHTML = actif
+      ? '<span class="tirage-cursor"></span>'
+      : '<span class="tile-placeholder">Appuyez ici pour saisir les lettres</span>';
     return;
   }
   zone.innerHTML = tirage.map((t, i) => `
-    <div class="tile ${t.reutilisee ? 'tile-reused' : 'tile-new'}" onclick="retirerLettre(${i})" title="Appuyez pour retirer">
+    <div class="tile ${t.reutilisee ? 'tile-reused' : 'tile-new'}" onclick="event.stopPropagation();retirerLettre(${i})" title="Appuyez pour retirer">
       ${escHtml(t.lettre)}
     </div>
-  `).join('');
+  `).join('') + (actif ? '<span class="tirage-cursor"></span>' : '');
 }
 
 function ajouterLettre(input) {
   let val = input.value.replace(/[^a-zA-ZÀ-ÿ]/g, '').toUpperCase();
   if (!val) { input.value = ''; return; }
-  val = val.charAt(0);
+  val = val.charAt(val.length - 1);
   etat._tirageCourant = etat._tirageCourant || [];
   etat._tirageCourant.push({ lettre: val, reutilisee: false });
   input.value = '';
-  renderTirageCourant();
+  renderTirageCourant(true);
 }
 
 function retirerLettre(i) {
   etat._tirageCourant.splice(i, 1);
-  renderTirageCourant();
+  renderTirageCourant(document.getElementById('tirage-zone').classList.contains('tirage-zone-active'));
 }
 
 function validerManche() {
@@ -1191,11 +1446,15 @@ function validerManche() {
 function renderScoreJoueur() {
   const joueur = etat.joueurs[etat.joueurActuel];
   const numManche = etat.manches.length;
-  const nbJoueurs = etat.joueurs.length;
+  const manche = etat.manches[numManche - 1];
 
   document.getElementById('header-score-sub').textContent = `Score — Manche ${numManche}`;
   document.getElementById('score-avatar').textContent = joueur.nom.charAt(0).toUpperCase();
   document.getElementById('score-nom').textContent = joueur.nom;
+
+  // Bannière rappel mot + points max
+  document.getElementById('recap-mot').textContent = manche.mot || '—';
+  document.getElementById('recap-pts-max').textContent = manche.ptsMax ? `${manche.ptsMax} pts` : '—';
 
   const total = totalScore(joueur);
   document.getElementById('score-precedent').textContent =
@@ -1375,8 +1634,9 @@ function confirmerTerminer() {
   document.getElementById('modal-terminer').classList.add('active');
 }
 
-function fermerModal() {
-  document.getElementById('modal-terminer').classList.remove('active');
+function fermerModal(id) {
+  const cible = id || 'modal-terminer';
+  document.getElementById(cible).classList.remove('active');
 }
 
 function terminerPartie() {
@@ -1559,9 +1819,163 @@ function showToast(msg) {
 }
 
 // ═══════════════════════════════════════════════════
+//  CHRONOMÈTRE
+// ═══════════════════════════════════════════════════
+let chronoReglage = 3 * 60; // secondes, défaut 3 min
+let chronoRestant = chronoReglage;
+let chronoInterval = null;
+let chronoSonnerie = true;
+
+function afficherChrono(secondes) {
+  const m = Math.floor(secondes / 60).toString().padStart(2, '0');
+  const s = (secondes % 60).toString().padStart(2, '0');
+  document.getElementById('chrono-display').textContent = `${m}:${s}`;
+}
+
+function toggleChrono() {
+  if (chronoInterval) {
+    stopChrono();
+    document.getElementById('chrono-btn-start').textContent = '▶ Reprendre';
+    document.getElementById('chrono-btn-start').classList.add('start');
+  } else {
+    startChrono();
+  }
+}
+
+function startChrono() {
+  if (chronoRestant <= 0) chronoRestant = chronoReglage;
+  const btn = document.getElementById('chrono-btn-start');
+  btn.textContent = '⏸ Pause';
+  btn.classList.remove('start');
+
+  chronoInterval = setInterval(() => {
+    chronoRestant--;
+    afficherChrono(chronoRestant);
+
+    const display = document.getElementById('chrono-display');
+    if (chronoRestant <= 30) display.classList.add('warning');
+    else display.classList.remove('warning');
+
+    if (chronoRestant <= 0) {
+      stopChrono();
+      afficherChrono(0);
+      if (chronoSonnerie) jouerSonnerie();
+      showToast('⏰ Temps écoulé !');
+      btn.textContent = '▶ Démarrer';
+      btn.classList.add('start');
+      display.classList.remove('warning');
+    }
+  }, 1000);
+}
+
+function stopChrono() {
+  if (chronoInterval) { clearInterval(chronoInterval); chronoInterval = null; }
+  chronoRestant = chronoReglage;
+}
+
+function jouerSonnerie() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.3, 0.6].forEach(delay => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = 880;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.4, ctx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.4);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + 0.4);
+    });
+  } catch(e) {}
+}
+
+function ouvrirReglagesChrono() {
+  // Pré-sélectionner le preset actif
+  const mins = Math.round(chronoReglage / 60);
+  document.querySelectorAll('.preset-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.textContent) === mins);
+  });
+  document.getElementById('chrono-custom').value = '';
+  document.getElementById('chrono-sonnerie').checked = chronoSonnerie;
+  document.getElementById('modal-chrono').classList.add('active');
+}
+
+function setChronoPreset(mins) {
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('chrono-custom').value = '';
+}
+
+function validerReglagesChrono() {
+  const custom = parseInt(document.getElementById('chrono-custom').value);
+  const activePreset = document.querySelector('.preset-btn.active');
+  let mins = custom > 0 ? custom : (activePreset ? parseInt(activePreset.textContent) : 3);
+  mins = Math.max(1, Math.min(60, mins));
+  chronoReglage = mins * 60;
+  chronoRestant = chronoReglage;
+  chronoSonnerie = document.getElementById('chrono-sonnerie').checked;
+  stopChrono();
+  afficherChrono(chronoReglage);
+  document.getElementById('chrono-btn-start').textContent = '▶ Démarrer';
+  document.getElementById('chrono-btn-start').classList.add('start');
+  document.getElementById('chrono-display').classList.remove('warning');
+  fermerModal('modal-chrono');
+}
+
+// ═══════════════════════════════════════════════════
+//  PANNEAU CLASSEMENT
+// ═══════════════════════════════════════════════════
+function ouvrirPanneauClassement() {
+  if (!etat.joueurs || etat.joueurs.length === 0) {
+    showToast('Aucun score à afficher'); return;
+  }
+  const sorted = [...etat.joueurs]
+    .map(j => ({ ...j, total: totalScore(j) }))
+    .sort((a, b) => b.total - a.total);
+
+  document.getElementById('panel-classement-content').innerHTML = sorted.map((j, i) => `
+    <div class="score-row ${i === 0 ? 'top' : ''}">
+      <span class="score-rank">${i + 1}</span>
+      <span class="score-name">${escHtml(j.nom)}</span>
+      <span class="score-total">${j.total}</span>
+      ${i === 0 ? '<span class="score-star">★</span>' : ''}
+    </div>
+  `).join('');
+
+  document.getElementById('panel-classement').classList.add('active');
+}
+
+function fermerPanneauClassement(e) {
+  if (!e || e.target === document.getElementById('panel-classement')) {
+    document.getElementById('panel-classement').classList.remove('active');
+  }
+}
+
+// ═══════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', initAccueil);
+document.addEventListener('DOMContentLoaded', () => {
+  initAccueil();
+
+  // Touche Retour pour supprimer la dernière lettre du tirage
+  document.addEventListener('keydown', (e) => {
+    const screenManche = document.getElementById('screen-manche');
+    if (!screenManche.classList.contains('active')) return;
+    if (e.key === 'Backspace') {
+      const input = document.getElementById('input-lettre');
+      // Si l'input est focus et vide → supprimer la dernière tuile
+      if (document.activeElement === input && input.value === '') {
+        e.preventDefault();
+        if (etat._tirageCourant && etat._tirageCourant.length > 0) {
+          etat._tirageCourant.pop();
+          renderTirageCourant(true);
+        }
+      }
+    }
+  });
+});
 </script>
+
 </body>
 </html>
