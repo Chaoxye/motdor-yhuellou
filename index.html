@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="color-scheme" content="light only">
+<title>MotDor — Comptage des points</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%236B1A2B'/%3E%3Crect x='8' y='6' width='48' height='48' rx='7' fill='%23C49A2A'/%3E%3Crect x='8' y='6' width='48' height='48' rx='7' fill='none' stroke='%23E0B84A' stroke-width='2'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-size='32' font-weight='bold' fill='%232A1810' font-family='Georgia,serif'%3EM%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%236B1A2B'/%3E%3Crect x='20' y='14' width='140' height='140' rx='18' fill='%23C49A2A'/%3E%3Crect x='20' y='14' width='140' height='140' rx='18' fill='none' stroke='%23E0B84A' stroke-width='5'/%3E%3Ctext x='90' y='118' text-anchor='middle' font-size='92' font-weight='bold' fill='%232A1810' font-family='Georgia,serif'%3EM%3C/text%3E%3C/svg%3E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MotDor">
+<meta name="theme-color" content="#6B1A2B">
+<style>
+:root {
+  color-scheme: light only;
+  --bx: #6B1A2B; --bx2: #8B2A3F;
+  --cr: #F7F0E2; --crd: #E8DFC8; --crdd: #D4C8A8;
+  --or: #C49A2A; --orl: #E0B84A; --orp: #FDF4DC;
+  --sg: #5A7A5A; --sgp: #EBF2EB;
+  --tx: #2A1810; --txm: #6A4030; --txl: #A08060;
+  --wh: #FFFFFF; --danger: #8B1A1A;
+  --r: 12px; --rs: 8px;
+}
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600;700&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Source Sans 3', sans-serif; background: var(--cr); color: var(--tx); min-height: 100vh; font-size: 18px; line-height: 1.5; }
+
+/* ── ÉCRANS ── */
+.screen { display: none; min-height: 100vh; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* ── HEADER ── */
+.hdr { background: var(--bx); padding: 14px 18px 12px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+.hdr-title { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--orl); flex: 1; }
+.hdr-sub { font-size: 13px; color: rgba(247,240,226,.6); }
+.hdr-back { background: rgba(255,255,255,.15); border: none; color: var(--orl); font-size: 22px; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.hdr-btn { background: var(--or); color: var(--tx); border: none; font-family: 'Source Sans 3', sans-serif; font-size: 14px; font-weight: 700; padding: 8px 14px; border-radius: 20px; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
+
+/* ── CONTENU ── */
+.content { flex: 1; padding: 20px; overflow-y: auto; }
+@media(min-width: 600px) { .content { max-width: 520px; margin: 0 auto; width: 100%; } }
+
+/* ── BOUTONS ── */
+.btn { display: block; width: 100%; padding: 16px; border-radius: var(--r); border: none; font-family: 'Source Sans 3', sans-serif; font-size: 17px; font-weight: 700; cursor: pointer; text-align: center; margin-top: 10px; -webkit-appearance: none; transition: transform .1s, opacity .1s; }
+.btn:active { transform: scale(.98); opacity: .9; }
+.btn:disabled { opacity: .35; cursor: default; transform: none; }
+.btn-primary { background: var(--bx); color: var(--orl); }
+.btn-secondary { background: var(--or); color: var(--tx); }
+.btn-ghost { background: transparent; color: var(--bx); border: 2px solid var(--bx); }
+.btn-danger { background: var(--danger); color: #FFD0D0; }
+.btn-sm { padding: 11px 16px; font-size: 15px; }
+
+/* ── CHAMPS ── */
+.flbl { display: block; font-size: 14px; font-weight: 700; color: var(--txm); margin-bottom: 6px; margin-top: 16px; }
+.finp { width: 100%; padding: 14px 16px; font-family: 'Source Sans 3', sans-serif; font-size: 19px; font-weight: 600; color: var(--tx); background: var(--wh); border: 2px solid var(--crd); border-radius: var(--rs); outline: none; -webkit-appearance: none; transition: border-color .2s; }
+.finp:focus { border-color: var(--or); box-shadow: 0 0 0 3px rgba(196,154,42,.15); }
+.finp-lg { font-size: 22px; text-align: center; }
+.finp-xl { font-size: 32px; font-family: 'Playfair Display', serif; text-align: center; border-width: 2.5px; }
+
+/* ── HERO ── */
+.hero { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 28px 20px 16px; }
+.logo { font-family: 'Playfair Display', serif; font-size: 52px; font-weight: 900; color: var(--bx); line-height: 1; }
+.logo span { color: var(--or); }
+.logo-sub { font-size: 16px; color: var(--txm); margin-top: 4px; margin-bottom: 20px; }
+
+/* ── BADGE MANCHE ── */
+.badge { display: inline-flex; align-items: center; background: var(--bx); color: var(--orl); font-size: 14px; font-weight: 700; padding: 5px 16px; border-radius: 20px; margin-bottom: 16px; }
+
+/* ── LISTE JOUEURS (saisie noms) ── */
+.p-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--wh); border-radius: var(--rs); border: 1.5px solid var(--crd); margin-bottom: 8px; }
+.p-num { font-size: 14px; font-weight: 700; color: var(--or); width: 22px; flex-shrink: 0; }
+.p-del { background: none; border: none; color: var(--crdd); font-size: 22px; cursor: pointer; padding: 0 4px; }
+.add-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; border: 2px dashed var(--or); border-radius: var(--rs); color: var(--or); font-size: 17px; font-weight: 700; background: none; cursor: pointer; width: 100%; font-family: 'Source Sans 3', sans-serif; margin-top: 4px; }
+
+/* ── PAGE MANCHE (tout-en-un) ── */
+.manche-page { display: flex; flex-direction: column; gap: 0; }
+
+/* Séparateur visuel entre infos manche et scores joueurs */
+.scores-sep { display: flex; align-items: center; gap: 10px; margin: 20px 0 14px; }
+.scores-sep-line { flex: 1; height: 1px; background: var(--crd); }
+.scores-sep-lbl { font-size: 13px; font-weight: 700; color: var(--txm); text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
+
+/* Ligne score joueur */
+.jrow { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--wh); border: 2px solid var(--crd); border-radius: var(--rs); margin-bottom: 8px; transition: border-color .2s, background .2s; }
+.jrow.done { border-color: var(--sg); background: var(--sgp); }
+.jrow.active { border-color: var(--or); box-shadow: 0 0 0 3px rgba(196,154,42,.15); }
+.j-av { width: 40px; height: 40px; border-radius: 50%; background: var(--bx); color: var(--orl); font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.j-nom { font-size: 18px; font-weight: 700; color: var(--tx); flex: 1; }
+.j-inp { width: 80px; height: 50px; font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: var(--bx); text-align: center; background: var(--wh); border: 2px solid var(--crd); border-radius: var(--rs); outline: none; -webkit-appearance: none; flex-shrink: 0; }
+.j-inp:focus { border-color: var(--or); box-shadow: 0 0 0 3px rgba(196,154,42,.15); }
+.jrow.done .j-inp { border-color: var(--sg); background: var(--sgp); color: var(--sg); }
+.j-check { color: var(--sg); font-size: 20px; flex-shrink: 0; }
+
+/* Bouton manche suivante flottant en bas à droite */
+.fab { position: fixed; bottom: 24px; right: 20px; background: var(--bx); color: var(--orl); border: none; border-radius: 30px; padding: 14px 22px; font-family: 'Source Sans 3', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 18px rgba(107,26,43,.45); z-index: 200; display: none; }
+.fab.visible { display: block; }
+.fab:active { transform: scale(.97); }
+
+/* ── CLASSEMENT ── */
+.s-row { display: flex; align-items: center; gap: 10px; padding: 13px 16px; border-radius: var(--rs); margin-bottom: 8px; background: var(--wh); border: 1.5px solid var(--crd); }
+.s-row.top { background: var(--orp); border-color: var(--or); }
+.s-rank { font-size: 15px; font-weight: 700; color: var(--bx); width: 22px; flex-shrink: 0; }
+.s-wrap { flex: 1; min-width: 0; }
+.s-name { font-size: 18px; font-weight: 600; color: var(--tx); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-bg { background: var(--crd); border-radius: 20px; height: 8px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 20px; background: var(--or); }
+.s-nums { text-align: right; flex-shrink: 0; }
+.s-pts { font-size: 20px; font-weight: 700; color: var(--bx); }
+.s-pct { font-size: 13px; color: var(--txm); }
+.s-star { color: var(--or); font-size: 18px; flex-shrink: 0; }
+
+/* ── RÉCAP ── */
+.recap-best { background: var(--orp); border: 2px solid var(--or); border-radius: var(--r); padding: 16px; text-align: center; margin-bottom: 20px; }
+.rb-lbl { font-size: 13px; color: var(--txl); margin-bottom: 4px; }
+.rb-name { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--bx); font-weight: 700; }
+.rb-detail { font-size: 15px; color: var(--txm); margin-top: 4px; }
+
+/* ── HISTORIQUE ── */
+.h-row { display: flex; align-items: center; gap: 12px; padding: 13px 16px; background: var(--wh); border-radius: var(--rs); border: 1.5px solid var(--crd); margin-bottom: 8px; cursor: pointer; }
+.h-row.enc { background: var(--sgp); border-color: var(--sg); }
+.h-info { flex: 1; }
+.h-date { font-size: 13px; color: var(--txl); }
+.h-win { font-size: 17px; font-weight: 700; color: var(--bx); }
+.h-det { font-size: 13px; color: var(--txm); }
+.h-tag { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; flex-shrink: 0; }
+.h-tag.enc { background: var(--sgp); color: var(--sg); border: 1px solid var(--sg); }
+.h-tag.done { background: var(--orp); color: var(--bx); border: 1px solid var(--or); }
+
+/* ── CORRECTION ── */
+.corr-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.corr-btn { padding: 8px 18px; border-radius: 20px; border: 2px solid var(--crd); background: var(--wh); font-size: 15px; font-weight: 700; color: var(--txm); cursor: pointer; font-family: 'Source Sans 3', sans-serif; }
+.corr-btn.active { background: var(--bx); color: var(--orl); border-color: var(--bx); }
+
+/* ── PANNEAU SCORES ── */
+.panel-bg { position: fixed; inset: 0; background: rgba(42,24,16,.5); z-index: 500; display: none; align-items: flex-end; }
+.panel-bg.on { display: flex; }
+.panel-box { background: var(--cr); border-radius: 20px 20px 0 0; padding: 20px; width: 100%; max-height: 78vh; overflow-y: auto; animation: up .25s ease; }
+@keyframes up { from { transform: translateY(100%) } to { transform: translateY(0) } }
+.panel-handle { width: 40px; height: 4px; background: var(--crdd); border-radius: 2px; margin: 0 auto 16px; }
+
+/* ── MODALS ── */
+.modal-bg { position: fixed; inset: 0; background: rgba(42,24,16,.6); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
+.modal-bg.on { display: flex; }
+.modal-box { background: var(--cr); border-radius: var(--r); padding: 24px; max-width: 360px; width: 100%; box-shadow: 0 8px 32px rgba(0,0,0,.3); }
+.modal-title { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--bx); margin-bottom: 10px; }
+.modal-txt { font-size: 16px; color: var(--txm); margin-bottom: 20px; line-height: 1.5; }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--tx); color: var(--cr); padding: 12px 24px; border-radius: 30px; font-size: 15px; font-weight: 600; z-index: 9999; transition: transform .3s; white-space: nowrap; max-width: 90vw; text-align: center; }
+.toast.on { transform: translateX(-50%) translateY(0); }
+
+/* ── MISC ── */
+.sep { border: none; border-top: 1px solid var(--crd); margin: 16px 0; }
+.sec-title { font-size: 14px; font-weight: 700; color: var(--txm); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+.hint { font-size: 13px; color: var(--txl); text-align: center; margin-top: 4px; }
+
+/* ── DÉTAIL JOUEUR (panneau secondaire) ── */
+.detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.detail-avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--bx); color: var(--orl); font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 2px solid var(--or); }
+.detail-nom { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--bx); font-weight: 700; }
+.detail-total { font-size: 14px; color: var(--txm); }
+.detail-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--wh); border: 1.5px solid var(--crd); border-radius: var(--rs); margin-bottom: 8px; }
+.detail-row.best { background: var(--orp); border-color: var(--or); }
+.detail-manche { font-size: 13px; font-weight: 700; color: var(--txm); width: 60px; flex-shrink: 0; }
+.detail-mot { font-size: 14px; color: var(--txm); flex: 1; font-style: italic; }
+.detail-score { font-size: 18px; font-weight: 700; color: var(--bx); flex-shrink: 0; }
+.detail-max { font-size: 12px; color: var(--txl); flex-shrink: 0; width: 50px; text-align: right; }
+.detail-pct { font-size: 13px; font-weight: 700; color: var(--or); flex-shrink: 0; width: 38px; text-align: right; }
+.btn-retour { background: none; border: none; color: var(--orl); font-size: 18px; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 6px; font-family: 'Source Sans 3', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 16px; } background: var(--sgp); border: 2px solid var(--sg); border-radius: var(--rs); padding: 10px 14px; text-align: center; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════ ACCUEIL ══════════════════════ -->
+<div id="s-accueil" class="screen active">
+  <div class="hero">
+    <div style="margin-bottom:12px">
+      <svg width="60" height="60" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#6B1A2B"/><rect x="8" y="6" width="48" height="48" rx="7" fill="#C49A2A"/><rect x="8" y="6" width="48" height="48" rx="7" fill="none" stroke="#E0B84A" stroke-width="2"/><text x="32" y="42" text-anchor="middle" font-size="32" font-weight="bold" fill="#2A1810" font-family="Georgia,serif">M</text></svg>
+    </div>
+    <div class="logo">Mot<span>Dor</span></div>
+    <div class="logo-sub">Comptage des points</div>
+    <div style="width:100%;max-width:420px">
+      <label class="flbl" for="inp-mdj" style="margin-top:0">Votre nom (maître du jeu)</label>
+      <input class="finp finp-lg" id="inp-mdj" type="text" placeholder="Ex : Jean-Marc" autocomplete="off" autocorrect="off" spellcheck="false"
+        onkeydown="if(event.key==='Enter') demarrerNouvellePartie()">
+      <button class="btn btn-primary" onclick="demarrerNouvellePartie()">Nouvelle partie</button>
+      <button class="btn btn-secondary" id="btn-reprendre" onclick="reprendrePartie()" style="display:none">Reprendre la partie en cours</button>
+      <hr class="sep">
+      <button class="btn btn-ghost" onclick="showHistorique()">Historique des parties</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ JOUEURS ══════════════════════ -->
+<div id="s-joueurs" class="screen">
+  <div class="hdr">
+    <button class="hdr-back" onclick="go('s-accueil')">←</button>
+    <div><div class="hdr-title">MotDor</div><div class="hdr-sub">Participants</div></div>
+  </div>
+  <div class="content">
+    <div class="sec-title" id="j-count">0 joueur</div>
+    <div id="j-liste"></div>
+    <button class="add-btn" onclick="ajouterJoueur()">+ Ajouter un joueur</button>
+    <div class="hint">De 2 à 100 joueurs</div>
+    <button class="btn btn-primary" onclick="demarrerPartie()" style="margin-top:20px">Démarrer la partie →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════ MANCHE (tout-en-un) ══════════════════════ -->
+<div id="s-manche" class="screen">
+  <div class="hdr">
+    <div style="flex:1"><div class="hdr-title">MotDor</div><div class="hdr-sub" id="hdr-manche-sub">Manche 1</div></div>
+    <button class="hdr-btn" onclick="ouvrirScores()">📊 Scores</button>
+  </div>
+  <div class="content">
+    <div class="badge" id="badge-manche">Manche 1</div>
+    <div class="manche-page" id="manche-page"></div>
+  </div>
+  <!-- Bouton flottant bas droite -->
+  <button class="fab" id="fab-suivante" onclick="mancheSuivante()">Manche suivante →</button>
+</div>
+
+<!-- ══════════════════════ CORRECTION ══════════════════════ -->
+<div id="s-correction" class="screen">
+  <div class="hdr">
+    <button class="hdr-back" onclick="retourCorrection()">←</button>
+    <div><div class="hdr-title">Correction</div><div class="hdr-sub">Modifier un score</div></div>
+  </div>
+  <div class="content">
+    <div class="sec-title">Sélectionner la manche</div>
+    <div class="corr-btns" id="corr-manches"></div>
+    <div class="sec-title" id="corr-j-title">Joueurs</div>
+    <div id="corr-joueurs"></div>
+    <div id="corr-form" style="display:none">
+      <hr class="sep">
+      <label class="flbl" id="corr-lbl">Nouveau score</label>
+      <input class="finp finp-xl" id="corr-inp" type="number" inputmode="numeric" min="0"
+        onkeydown="if(event.key==='Enter') validerCorrection()">
+      <button class="btn btn-primary" onclick="validerCorrection()">Valider la correction</button>
+      <button class="btn btn-ghost btn-sm" onclick="annulerCorrection()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ RÉCAPITULATIF ══════════════════════ -->
+<div id="s-recap" class="screen">
+  <div class="hdr" style="justify-content:center;text-align:center">
+    <div><div class="hdr-title">Fin de partie !</div><div class="hdr-sub" id="recap-date"></div></div>
+  </div>
+  <div class="content">
+    <div class="recap-best" id="recap-best"></div>
+    <div class="sec-title">Classement final</div>
+    <div id="recap-classement"></div>
+    <hr class="sep">
+    <button class="btn btn-primary" onclick="go('s-accueil')">Nouvelle partie</button>
+    <button class="btn btn-ghost btn-sm" onclick="go('s-accueil')">Retour à l'accueil</button>
+  </div>
+</div>
+
+<!-- ══════════════════════ HISTORIQUE ══════════════════════ -->
+<div id="s-historique" class="screen">
+  <div class="hdr">
+    <button class="hdr-back" onclick="go('s-accueil')">←</button>
+    <div><div class="hdr-title">Historique</div><div class="hdr-sub">30 derniers jours</div></div>
+  </div>
+  <div class="content"><div id="hist-liste"></div></div>
+</div>
+
+<!-- ══════════════════════ SPECTATEUR ══════════════════════ -->
+<div id="s-spectateur" class="screen">
+  <div class="hdr"><div><div class="hdr-title">MotDor</div><div class="hdr-sub" id="spec-sub">Vue spectateur</div></div></div>
+  <div class="content">
+    <div class="spec-banner">
+      <div style="font-size:15px;font-weight:700;color:var(--sg)">👁 Mode spectateur — lecture seule</div>
+      <div style="font-size:13px;color:var(--txm)">Mise à jour toutes les 5 secondes</div>
+    </div>
+    <div class="badge" id="spec-badge">Manche 1</div>
+    <div style="font-size:15px;color:var(--txm);margin-bottom:16px" id="spec-mot"></div>
+    <div class="sec-title">Classement</div>
+    <div id="spec-classement"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════ PANEL SCORES ══════════════════════ -->
+<div class="panel-bg" id="panel-bg" onclick="fermerPanel(event)">
+  <div class="panel-box">
+    <div class="panel-handle"></div>
+    <div style="font-family:'Playfair Display',serif;font-size:20px;color:var(--bx);margin-bottom:14px">Classement en cours</div>
+    <div id="panel-content"></div>
+    <button class="btn btn-primary" style="margin-top:12px" onclick="fermerPanel()">Fermer</button>
+  </div>
+</div>
+
+<!-- ══════════════════════ MODAL TERMINER ══════════════════════ -->
+<div class="modal-bg" id="modal-terminer">
+  <div class="modal-box">
+    <div class="modal-title">Terminer la partie ?</div>
+    <div class="modal-txt">Le récapitulatif final sera affiché. Cette action est définitive.</div>
+    <button class="btn btn-danger" onclick="terminerPartie()">Oui, terminer la partie</button>
+    <button class="btn btn-ghost btn-sm" onclick="fermerModal()">Annuler</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════
+//  ÉTAT
+// ════════════════════════════════════
+let G = {
+  maitre: '', joueurs: [], manches: [],
+  mancheActuelle: 0, enCours: false,
+  id: '', dateDebut: ''
+};
+let ecranRetour = 's-manche';
+let corrM = null, corrJ = null;
+let specTimer = null;
+
+const SK = 'motdor_v4';
+const HK = 'motdor_hist_v4';
+
+// ════════════════════════════════════
+//  PERSISTENCE
+// ════════════════════════════════════
+function save() { try { localStorage.setItem(SK, JSON.stringify(G)); } catch(e){} }
+function load() {
+  try { const d = localStorage.getItem(SK); if (d) { G = JSON.parse(d); return true; } }
+  catch(e) {}
+  return false;
+}
+function saveHist() {
+  try {
+    let h = getHist();
+    const id = G.id || (G.id = Date.now().toString());
+    h = h.filter(x => x.id !== id);
+    h.unshift({
+      id, date: G.dateDebut || new Date().toISOString(),
+      maitre: G.maitre, joueurs: G.joueurs.map(j => j.nom),
+      manches: G.manches.length, termine: !G.enCours,
+      vainqueur: vainqueur()?.nom || '',
+      snap: JSON.parse(JSON.stringify(G))
+    });
+    const lim = Date.now() - 30 * 86400000;
+    localStorage.setItem(HK, JSON.stringify(h.filter(x => new Date(x.date) > lim)));
+  } catch(e) {}
+}
+function getHist() { try { return JSON.parse(localStorage.getItem(HK) || '[]'); } catch(e) { return []; } }
+
+// ════════════════════════════════════
+//  CALCULS
+// ════════════════════════════════════
+function total(j) { return j.scores.reduce((s, x) => s + x.pts, 0); }
+function maxCumul() { return G.manches.reduce((s, m) => s + (m.ptsMax || 0), 0); }
+function pct(j) { const m = maxCumul(); return m ? Math.round(total(j) / m * 100) : 0; }
+function vainqueur() {
+  if (!G.joueurs.length) return null;
+  return [...G.joueurs].sort((a, b) => total(b) - total(a))[0];
+}
+
+// ════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+  if (specTimer) { clearInterval(specTimer); specTimer = null; }
+  // Masquer le FAB quand on quitte la manche
+  if (id !== 's-manche') document.getElementById('fab-suivante').classList.remove('visible');
+}
+
+// ════════════════════════════════════
+//  ACCUEIL
+// ════════════════════════════════════
+function init() {
+  if (load() && G.enCours) document.getElementById('btn-reprendre').style.display = 'block';
+  else document.getElementById('btn-reprendre').style.display = 'none';
+  const p = new URLSearchParams(location.search);
+  if (p.get('spec')) { initSpec(p.get('spec')); }
+}
+
+function demarrerNouvellePartie() {
+  const nom = document.getElementById('inp-mdj').value.trim();
+  if (!nom) { toast('Veuillez entrer votre nom'); return; }
+  G = { maitre: nom, joueurs: [], manches: [], mancheActuelle: 0, enCours: false, id: Date.now().toString(), dateDebut: new Date().toISOString() };
+  save(); renderJoueurs(); go('s-joueurs');
+}
+
+function reprendrePartie() {
+  if (!load()) return;
+  renderManche(); go('s-manche');
+}
+
+// ════════════════════════════════════
+//  JOUEURS
+// ════════════════════════════════════
+function renderJoueurs() {
+  const n = G.joueurs.length;
+  document.getElementById('j-count').textContent = `${n} joueur${n > 1 ? 's' : ''}`;
+  document.getElementById('j-liste').innerHTML = G.joueurs.map((j, i) => `
+    <div class="p-row">
+      <span class="p-num">${i + 1}</span>
+      <input class="finp" style="border:none;background:transparent;padding:0;font-size:18px;font-weight:600;outline:none"
+        value="${esc(j.nom)}" placeholder="Nom du joueur"
+        onchange="G.joueurs[${i}].nom=this.value;save()"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();focusNextJoueur(${i})}"
+        id="jinp-${i}" autocomplete="off" autocorrect="off" spellcheck="false">
+      <button class="p-del" onclick="supprimerJoueur(${i})">✕</button>
+    </div>`).join('');
+}
+
+function focusNextJoueur(i) {
+  // Sauvegarder la valeur courante
+  const cur = document.getElementById(`jinp-${i}`);
+  if (cur) { G.joueurs[i].nom = cur.value; save(); }
+
+  const next = document.getElementById(`jinp-${i + 1}`);
+  if (next) {
+    next.focus();
+  } else {
+    // Dernier joueur : ajouter automatiquement un nouveau joueur si le champ est rempli
+    if (cur && cur.value.trim()) {
+      ajouterJoueur();
+    }
+  }
+}
+
+function ajouterJoueur() {
+  if (G.joueurs.length >= 100) { toast('Maximum 100 joueurs'); return; }
+  G.joueurs.push({ nom: '', scores: [] });
+  save(); renderJoueurs();
+  setTimeout(() => {
+    const ins = document.querySelectorAll('#j-liste input');
+    if (ins.length) ins[ins.length - 1].focus();
+  }, 80);
+}
+
+function supprimerJoueur(i) { G.joueurs.splice(i, 1); save(); renderJoueurs(); }
+
+function demarrerPartie() {
+  G.joueurs = G.joueurs.filter(j => j.nom.trim());
+  if (G.joueurs.length < 2) { toast('Minimum 2 joueurs'); return; }
+  G.joueurs.forEach(j => { j.nom = j.nom.trim(); j.scores = []; });
+  G.manches = []; G.mancheActuelle = 0; G.enCours = true;
+  save(); renderManche(); go('s-manche');
+}
+
+// ════════════════════════════════════
+//  MANCHE — PAGE UNIQUE
+// ════════════════════════════════════
+function renderManche() {
+  const num = G.mancheActuelle + 1;
+  document.getElementById('badge-manche').textContent = `Manche ${num}`;
+  document.getElementById('hdr-manche-sub').textContent = `Manche ${num}`;
+  document.getElementById('fab-suivante').classList.remove('visible');
+
+  // Récupérer les données existantes si on reprend une manche en cours
+  const mancheExistante = G.manches[G.mancheActuelle] || null;
+
+  document.getElementById('manche-page').innerHTML = `
+    <!-- Infos manche -->
+    <label class="flbl" style="margin-top:0" for="inp-ptsmax">Points maximum du tirage</label>
+    <input class="finp" id="inp-ptsmax" type="number" inputmode="numeric" placeholder="Ex : 28" min="0"
+      value="${mancheExistante ? mancheExistante.ptsMax : ''}"
+      onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('inp-mot').focus()}">
+
+    <label class="flbl" for="inp-mot">Mot qui rapporte le plus</label>
+    <input class="finp" id="inp-mot" type="text" placeholder="Ex : POURRIS"
+      value="${mancheExistante ? mancheExistante.mot : ''}"
+      style="text-transform:uppercase" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"
+      onkeydown="if(event.key==='Enter'){event.preventDefault();focusScore(0)}">
+
+    <!-- Séparateur -->
+    <div class="scores-sep">
+      <div class="scores-sep-line"></div>
+      <div class="scores-sep-lbl">Scores des joueurs</div>
+      <div class="scores-sep-line"></div>
+    </div>
+
+    <!-- Scores joueurs -->
+    ${G.joueurs.map((j, i) => {
+      const scoreExistant = mancheExistante ? (mancheExistante.scores[j.nom] ?? '') : '';
+      const isDone = scoreExistant !== '';
+      return `
+      <div class="jrow ${isDone ? 'done' : ''}" id="jrow-${i}">
+        <div class="j-av">${j.nom.charAt(0).toUpperCase()}</div>
+        <div class="j-nom">${esc(j.nom)}</div>
+        <input class="j-inp" id="jscore-${i}" type="number" inputmode="numeric" min="0"
+          placeholder="—" value="${scoreExistant}"
+          oninput="onJScore(${i})"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();focusScore(${i + 1})}"
+          onfocus="highlightRow(${i})">
+        ${isDone ? '<span class="j-check">✓</span>' : ''}
+      </div>`;
+    }).join('')}
+
+    <!-- Boutons du bas -->
+    <div style="height:80px"></div>
+    <hr class="sep" style="margin-top:0">
+    <button class="btn btn-ghost btn-sm" onclick="showCorrection()">Corriger un score passé</button>
+    <button class="btn btn-danger btn-sm" onclick="fermerModal('ouvrir')" style="margin-top:6px">Terminer la partie</button>
+  `;
+
+  // Vérifier si tous les scores sont déjà remplis (reprise)
+  checkFab();
+
+  // Focus sur le premier champ vide
+  setTimeout(() => {
+    if (!mancheExistante) {
+      document.getElementById('inp-ptsmax').focus();
+    } else {
+      focusScore(0);
+    }
+  }, 200);
+}
+
+function highlightRow(i) {
+  document.querySelectorAll('.jrow').forEach(r => r.classList.remove('active'));
+  const row = document.getElementById(`jrow-${i}`);
+  if (row) row.classList.add('active');
+}
+
+function focusScore(i) {
+  const inp = document.getElementById(`jscore-${i}`);
+  if (inp) { inp.focus(); inp.select(); }
+  else {
+    // Plus de joueur suivant → focus sur "Manche suivante" si tout est rempli
+    if (toutRempli()) document.getElementById('fab-suivante').focus();
+  }
+}
+
+function onJScore(i) {
+  const inp = document.getElementById(`jscore-${i}`);
+  const ptsMax = parseInt(document.getElementById('inp-ptsmax')?.value || 0);
+  let v = inp.value.trim();
+
+  // Blocage : score ne peut pas dépasser le points maximum
+  if (ptsMax > 0 && parseInt(v) > ptsMax) {
+    inp.value = ptsMax;
+    v = String(ptsMax);
+    toast(`Score maximum : ${ptsMax} pts`);
+  }
+
+  const row = document.getElementById(`jrow-${i}`);
+  const valide = v !== '' && !isNaN(parseInt(v)) && parseInt(v) >= 0;
+  row.classList.toggle('done', valide);
+  const check = row.querySelector('.j-check');
+  if (valide && !check) {
+    const sp = document.createElement('span');
+    sp.className = 'j-check'; sp.textContent = '✓';
+    row.appendChild(sp);
+  } else if (!valide && check) {
+    check.remove();
+  }
+  checkFab();
+}
+
+function toutRempli() {
+  const ptsMax = document.getElementById('inp-ptsmax')?.value.trim();
+  const mot = document.getElementById('inp-mot')?.value.trim();
+  if (!ptsMax || !mot) return false;
+  return G.joueurs.every((_, i) => {
+    const v = document.getElementById(`jscore-${i}`)?.value.trim();
+    return v !== '' && !isNaN(parseInt(v)) && parseInt(v) >= 0;
+  });
+}
+
+function checkFab() {
+  document.getElementById('fab-suivante').classList.toggle('visible', toutRempli());
+}
+
+function mancheSuivante() {
+  if (!toutRempli()) { toast('Complétez tous les champs'); return; }
+
+  const ptsMax = parseInt(document.getElementById('inp-ptsmax').value);
+  const mot = document.getElementById('inp-mot').value.trim().toUpperCase();
+
+  // Créer ou mettre à jour la manche
+  const scores = {};
+  G.joueurs.forEach((j, i) => {
+    scores[j.nom] = parseInt(document.getElementById(`jscore-${i}`).value);
+  });
+
+  if (G.manches[G.mancheActuelle]) {
+    // Mise à jour
+    G.manches[G.mancheActuelle].ptsMax = ptsMax;
+    G.manches[G.mancheActuelle].mot = mot;
+    G.manches[G.mancheActuelle].scores = scores;
+    G.joueurs.forEach(j => {
+      const entry = j.scores.find(s => s.manche === G.manches[G.mancheActuelle].numero);
+      if (entry) entry.pts = scores[j.nom];
+      else j.scores.push({ manche: G.manches[G.mancheActuelle].numero, pts: scores[j.nom] });
+    });
+  } else {
+    const num = G.mancheActuelle + 1;
+    G.manches.push({ numero: num, ptsMax, mot, scores });
+    G.joueurs.forEach(j => j.scores.push({ manche: num, pts: scores[j.nom] }));
+  }
+
+  G.mancheActuelle = G.manches.length;
+  save(); saveHist();
+  renderManche(); go('s-manche');
+}
+
+// ════════════════════════════════════
+//  SCORES (panneau)
+// ════════════════════════════════════
+function buildClassement(joueurs, manches) {
+  if (!joueurs.length) return '<div style="color:var(--txl);text-align:center;padding:20px">Aucun score encore</div>';
+  const maxC = manches.reduce((s, m) => s + (m.ptsMax || 0), 0);
+  const sorted = [...joueurs]
+    .map(j => { const t = total(j); return { ...j, t, p: maxC ? Math.round(t / maxC * 100) : 0 }; })
+    .sort((a, b) => b.t - a.t);
+  const topPct = sorted[0]?.p || 1;
+  return sorted.map((j, i) => `
+    <div class="s-row ${i === 0 ? 'top' : ''}" onclick="ouvrirDetailJoueur('${esc(j.nom)}')" style="cursor:pointer">
+      <span class="s-rank">${i + 1}</span>
+      <div class="s-wrap">
+        <div class="s-name">${esc(j.nom)}</div>
+        <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(j.p / topPct * 100)}%"></div></div>
+      </div>
+      <div class="s-nums"><div class="s-pts">${j.t}</div><div class="s-pct">${j.p}%</div></div>
+      ${i === 0 ? '<span class="s-star">★</span>' : '<span style="font-size:13px;color:var(--or);flex-shrink:0">›</span>'}
+    </div>`).join('');
+}
+
+function ouvrirDetailJoueur(nom) {
+  const j = G.joueurs.find(j => j.nom === nom);
+  if (!j) return;
+  const maxC = G.manches.reduce((s, m) => s + (m.ptsMax || 0), 0);
+  const tot = total(j);
+  const pctTot = maxC ? Math.round(tot / maxC * 100) : 0;
+
+  // Trouver la meilleure manche
+  let bestPts = -1, bestManche = 0;
+  j.scores.forEach(s => { if (s.pts > bestPts) { bestPts = s.pts; bestManche = s.manche; } });
+
+  const lignes = G.manches.map(m => {
+    const s = j.scores.find(x => x.manche === m.numero);
+    const pts = s ? s.pts : null;
+    const p = pts !== null && m.ptsMax ? Math.round(pts / m.ptsMax * 100) : null;
+    const isBest = m.numero === bestManche;
+    return `
+      <div class="detail-row ${isBest ? 'best' : ''}">
+        <div class="detail-manche">M${m.numero}${isBest ? ' ★' : ''}</div>
+        <div class="detail-mot">${esc(m.mot)}</div>
+        <div class="detail-score">${pts !== null ? pts : '—'}</div>
+        <div class="detail-max">/ ${m.ptsMax}</div>
+        <div class="detail-pct">${p !== null ? p + '%' : '—'}</div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('panel-content').innerHTML = `
+    <button class="btn-retour" onclick="retourClassement()">← Classement</button>
+    <div class="detail-header">
+      <div class="detail-avatar">${j.nom.charAt(0).toUpperCase()}</div>
+      <div>
+        <div class="detail-nom">${esc(j.nom)}</div>
+        <div class="detail-total">${tot} pts · ${pctTot}% de réussite</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;font-size:12px;color:var(--txm);margin-bottom:12px;font-weight:600;">
+      <span style="width:60px">Manche</span>
+      <span style="flex:1">Mot</span>
+      <span style="width:36px;text-align:right">Score</span>
+      <span style="width:50px;text-align:right">Max</span>
+      <span style="width:38px;text-align:right">%</span>
+    </div>
+    ${lignes}`;
+  document.getElementById('panel-bg').classList.add('on');
+}
+
+function retourClassement() {
+  document.getElementById('panel-content').innerHTML = buildClassement(G.joueurs, G.manches);
+}
+
+function ouvrirScores() {
+  document.getElementById('panel-content').innerHTML = buildClassement(G.joueurs, G.manches);
+  document.getElementById('panel-bg').classList.add('on');
+}
+
+function fermerPanel(e) {
+  if (!e || e.target === document.getElementById('panel-bg'))
+    document.getElementById('panel-bg').classList.remove('on');
+}
+
+// ════════════════════════════════════
+//  CORRECTION
+// ════════════════════════════════════
+function showCorrection() {
+  ecranRetour = 's-manche';
+  corrM = null; corrJ = null;
+  document.getElementById('corr-manches').innerHTML = G.manches.map((m, i) =>
+    `<button class="corr-btn" id="cm-${i}" onclick="selCorrM(${i})">M${m.numero}</button>`).join('');
+  document.getElementById('corr-joueurs').innerHTML = '';
+  document.getElementById('corr-form').style.display = 'none';
+  go('s-correction');
+}
+
+function retourCorrection() { renderManche(); go('s-manche'); }
+
+function selCorrM(i) {
+  corrM = i;
+  document.querySelectorAll('.corr-btn').forEach((b, idx) => b.classList.toggle('active', idx === i));
+  const m = G.manches[i];
+  document.getElementById('corr-j-title').textContent = `Joueurs — Manche ${m.numero}`;
+  document.getElementById('corr-form').style.display = 'none';
+  document.getElementById('corr-joueurs').innerHTML = G.joueurs.map((j, ji) => `
+    <div class="s-row" id="cj-${ji}" onclick="selCorrJ(${ji})" style="cursor:pointer">
+      <span class="s-name" style="flex:1">${esc(j.nom)}</span>
+      <span class="s-pts">${m.scores[j.nom] ?? '—'}</span>
+      <span style="font-size:14px;color:var(--or);font-weight:700;margin-left:8px">Modifier</span>
+    </div>`).join('');
+}
+
+function selCorrJ(ji) {
+  corrJ = ji;
+  document.querySelectorAll('[id^="cj-"]').forEach((r, idx) => {
+    r.style.borderColor = idx === ji ? 'var(--or)' : 'var(--crd)';
+    r.style.background = idx === ji ? 'var(--orp)' : '';
+  });
+  const j = G.joueurs[ji], m = G.manches[corrM];
+  document.getElementById('corr-lbl').textContent = `Nouveau score — ${j.nom} (Manche ${m.numero})`;
+  document.getElementById('corr-inp').value = m.scores[j.nom] ?? 0;
+  document.getElementById('corr-form').style.display = 'block';
+  setTimeout(() => document.getElementById('corr-inp').focus(), 80);
+}
+
+function validerCorrection() {
+  if (corrM === null || corrJ === null) return;
+  const val = parseInt(document.getElementById('corr-inp').value);
+  if (isNaN(val) || val < 0) { toast('Score invalide'); return; }
+  const j = G.joueurs[corrJ], m = G.manches[corrM];
+  m.scores[j.nom] = val;
+  const e = j.scores.find(s => s.manche === m.numero);
+  if (e) e.pts = val; else j.scores.push({ manche: m.numero, pts: val });
+  save(); saveHist();
+  toast(`Corrigé : ${j.nom} M${m.numero} → ${val} pts`);
+  document.getElementById('corr-form').style.display = 'none';
+  retourCorrection();
+}
+
+function annulerCorrection() {
+  document.getElementById('corr-form').style.display = 'none';
+  corrJ = null;
+}
+
+// ════════════════════════════════════
+//  FIN DE PARTIE
+// ════════════════════════════════════
+function fermerModal(action) {
+  if (action === 'ouvrir') { document.getElementById('modal-terminer').classList.add('on'); return; }
+  document.getElementById('modal-terminer').classList.remove('on');
+}
+
+function terminerPartie() {
+  fermerModal();
+  G.enCours = false; G.dateFin = new Date().toISOString();
+  save(); saveHist(); localStorage.removeItem(SK);
+  renderRecap(); go('s-recap');
+}
+
+function renderRecap() {
+  let bScore = -1, bJoueur = '', bManche = 0, bPct = 0;
+  G.manches.forEach(m => {
+    G.joueurs.forEach(j => {
+      const s = m.scores[j.nom] ?? 0;
+      const p = m.ptsMax ? Math.round(s / m.ptsMax * 100) : 0;
+      if (s > bScore) { bScore = s; bJoueur = j.nom; bManche = m.numero; bPct = p; }
+    });
+  });
+  const d = new Date(G.dateFin || Date.now());
+  document.getElementById('recap-date').textContent =
+    d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) +
+    ' — ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('recap-best').innerHTML = `
+    <div class="rb-lbl">⭐ Meilleure manche de la partie</div>
+    <div class="rb-name">${esc(bJoueur)}</div>
+    <div class="rb-detail">${bScore} pts — Manche ${bManche} · ${bPct}%</div>`;
+  document.getElementById('recap-classement').innerHTML = buildClassement(G.joueurs, G.manches);
+}
+
+// ════════════════════════════════════
+//  HISTORIQUE
+// ════════════════════════════════════
+function showHistorique() {
+  const h = getHist();
+  const el = document.getElementById('hist-liste');
+  if (!h.length) {
+    el.innerHTML = '<div style="text-align:center;color:var(--txl);padding:40px 20px">Aucune partie enregistrée.</div>';
+    go('s-historique'); return;
+  }
+  el.innerHTML = h.map((x, i) => {
+    const d = new Date(x.date);
+    const ds = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) +
+      ' — ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    const enc = !x.termine;
+    return `<div class="h-row ${enc ? 'enc' : ''}" onclick="ouvrirHist(${i})">
+      <div class="h-info">
+        <div class="h-date">${ds}</div>
+        <div class="h-win">${enc ? x.maitre : esc(x.vainqueur)}</div>
+        <div class="h-det">${x.maitre} · ${x.joueurs.length} joueurs · ${x.manches} manche${x.manches > 1 ? 's' : ''}</div>
+      </div>
+      <div class="h-tag ${enc ? 'enc' : 'done'}">${enc ? 'EN COURS' : 'Terminée'}</div>
+    </div>`;
+  }).join('');
+  go('s-historique');
+}
+
+function ouvrirHist(i) {
+  const x = getHist()[i]; if (!x) return;
+  if (!x.termine && x.snap) {
+    G = JSON.parse(JSON.stringify(x.snap)); save();
+    renderManche(); go('s-manche');
+  } else if (x.snap) {
+    G = JSON.parse(JSON.stringify(x.snap)); G.dateFin = x.date;
+    renderRecap(); go('s-recap');
+  }
+}
+
+// ════════════════════════════════════
+//  SPECTATEUR
+// ════════════════════════════════════
+function initSpec(id) {
+  go('s-spectateur');
+  rafSpec(id);
+  specTimer = setInterval(() => rafSpec(id), 5000);
+}
+
+function rafSpec(id) {
+  const x = getHist().find(x => x.id === id);
+  if (!x?.snap) { document.getElementById('spec-sub').textContent = 'Partie introuvable'; return; }
+  const s = x.snap, num = s.manches.length, m = s.manches[num - 1];
+  document.getElementById('spec-sub').textContent = `Vue spectateur — Manche ${num}`;
+  document.getElementById('spec-badge').textContent = `Manche ${num}`;
+  if (m) document.getElementById('spec-mot').textContent = `Meilleur mot : ${m.mot} — ${m.ptsMax} pts max`;
+  document.getElementById('spec-classement').innerHTML = buildClassement(s.joueurs, s.manches);
+}
+
+// ════════════════════════════════════
+//  UTILITAIRES
+// ════════════════════════════════════
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('on');
+  setTimeout(() => t.classList.remove('on'), 2500);
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
